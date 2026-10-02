@@ -8,6 +8,7 @@ import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
 import com.github.smallinger.copperagebackport.item.armor.CopperArmorMaterial;
 import com.github.smallinger.copperagebackport.platform.Services;
 import com.github.smallinger.copperagebackport.registry.*;
+import com.github.smallinger.copperagebackport.util.LightningRodPoiHelper;
 
 /**
  * Main initialization class for Copper-Age-Backport.
@@ -35,6 +36,9 @@ public class CommonClass {
         ModBlockEntities.register();
         ModEntities.register();
         ModItems.register();
+
+        // The custom lightning rod states only exist after block registration completes.
+        RegistryHelper.getInstance().onRegisterComplete(LightningRodPoiHelper::register);
         
         // Register mod compatibility modules
         registerCompatModules();
