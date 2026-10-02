@@ -27,7 +27,7 @@ import java.util.Optional;
 public abstract class LightningBoltMixin {
 
     @Shadow
-    private abstract BlockPos getStrikePosition();
+    protected abstract BlockPos getStrikePosition();
 
     @Inject(method = "powerLightningRod", at = @At("HEAD"))
     private void copperagebackport$powerCopperAgeRod(CallbackInfo ci) {
