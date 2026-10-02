@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -51,3 +51,35 @@ jobs:
             !neoforge/build/libs/*-sources.jar
             !neoforge/build/libs/*-javadoc.jar
           if-no-files-found: error
+
+      - name: Publish direct-download JARs to GitHub Releases
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          tag="build-${GITHUB_RUN_NUMBER}"
+          files=()
+
+          while IFS= read -r -d '' file; do
+            files+=("$file")
+          done < <(
+            find fabric/build/libs neoforge/build/libs \
+              -maxdepth 1 \
+              -type f \
+              -name '*.jar' \
+              ! -name '*-sources.jar' \
+              ! -name '*-javadoc.jar' \
+              -print0
+          )
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No release JARs found."
+            exit 1
+          fi
+
+          gh release create "$tag" "${files[@]}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Copper Age Backport Patched build #${GITHUB_RUN_NUMBER}" \
+            --notes "Automated Fabric and NeoForge build from commit ${GITHUB_SHA}." \
+            --latest
