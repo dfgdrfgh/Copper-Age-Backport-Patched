@@ -181,12 +181,15 @@ public class CopperChestBlock extends ChestBlock {
         BlockState selfState = state;
         BlockState resolvedNeighbor = neighborState;
         if (self.isWaxed() != neighbor.isWaxed()) {
-            selfState = getUnwaxedBlock(selfState.getBlock())
-                .map(block -> block.withPropertiesOf(selfState))
-                .orElse(selfState);
-            resolvedNeighbor = getUnwaxedBlock(resolvedNeighbor.getBlock())
-                .map(block -> block.withPropertiesOf(resolvedNeighbor))
-                .orElse(resolvedNeighbor);
+            Optional<Block> selfUnwaxed = getUnwaxedBlock(selfState.getBlock());
+            if (selfUnwaxed.isPresent()) {
+                selfState = selfUnwaxed.get().withPropertiesOf(selfState);
+            }
+
+            Optional<Block> neighborUnwaxed = getUnwaxedBlock(resolvedNeighbor.getBlock());
+            if (neighborUnwaxed.isPresent()) {
+                resolvedNeighbor = neighborUnwaxed.get().withPropertiesOf(resolvedNeighbor);
+            }
         }
 
         Block lessOxidized = self.weatherState.ordinal() <= neighbor.weatherState.ordinal()
