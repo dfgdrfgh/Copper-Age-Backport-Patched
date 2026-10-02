@@ -12,7 +12,8 @@
     "MobEquipmentMixin",
     "PlayerDataRemapMixin",
     "ComparatorBlockMixin",
-    "PoiTypesAccessor"
+    "PoiTypesAccessor",
+    "LightningBoltMixin"
   ],
   "client": [
     "client.ClientLevelMixin",
