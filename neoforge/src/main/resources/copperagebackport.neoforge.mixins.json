@@ -13,7 +13,8 @@
     "PlayerDataRemapMixin",
     "LootPoolAccessor",
     "ComparatorBlockMixin",
-    "PoiTypesAccessor"
+    "PoiTypesAccessor",
+    "LightningBoltMixin"
   ],
   "client": [
     "client.ClientLevelMixin",
