@@ -1,3 +1,5 @@
+# This fork fixes the issue of the copper armor having infinite durability
+
 # Copper Age Backport
 *(formerly known as Copper Golem Legacy)*
 
