@@ -260,45 +260,42 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
     }
 
     private void updateWeathering(ServerLevel level, RandomSource random, long gameTime) {
-        if (this.nextWeatheringTick == IGNORE_WEATHERING_TICK) {
-            return;
-        }
-
-        if (this.nextWeatheringTick == UNSET_WEATHERING_TICK) {
-            this.nextWeatheringTick = gameTime + random.nextIntBetweenInclusive(
-                MIN_OXIDATION_AGE_TICKS,
-                MAX_OXIDATION_AGE_TICKS
-            );
-            return;
-        }
-
-        WeatheringCopper.WeatherState weatherState = this.getWeatherState();
-        boolean isOxidized = weatherState == WeatheringCopper.WeatherState.OXIDIZED;
-
-        if (gameTime >= this.nextWeatheringTick && !isOxidized) {
-            WeatheringCopper.WeatherState nextState = getNextWeatherState(weatherState);
-            boolean willBeOxidized = nextState == WeatheringCopper.WeatherState.OXIDIZED;
-
-            this.setWeatherState(nextState);
-            isOxidized = willBeOxidized;
-            this.nextWeatheringTick = willBeOxidized
-                ? 0L
-                : gameTime + random.nextIntBetweenInclusive(
+        if (this.nextWeatheringTick != IGNORE_WEATHERING_TICK) {
+            if (this.nextWeatheringTick == UNSET_WEATHERING_TICK) {
+                this.nextWeatheringTick = gameTime + random.nextIntBetweenInclusive(
                     MIN_OXIDATION_AGE_TICKS,
                     MAX_OXIDATION_AGE_TICKS
                 );
-        }
+            } else {
+                WeatheringCopper.WeatherState weatherState = this.getWeatherState();
+                boolean isFullyOxidized = weatherState == WeatheringCopper.WeatherState.OXIDIZED;
 
-        // Finalized Copper Age behavior allows the statue roll on the same
-        // tick that the golem reaches the fully oxidized state.
-        if (isOxidized && canTurnToStatue(level)) {
-            turnToStatue(level);
+                if (gameTime >= this.nextWeatheringTick && !isFullyOxidized) {
+                    WeatheringCopper.WeatherState nextState = getNextWeatherState(weatherState);
+                    boolean isNewStateFullyOxidized = nextState == WeatheringCopper.WeatherState.OXIDIZED;
+
+                    this.setWeatherState(nextState);
+                    this.nextWeatheringTick = isNewStateFullyOxidized
+                        ? 0L
+                        : this.nextWeatheringTick + random.nextIntBetweenInclusive(
+                            MIN_OXIDATION_AGE_TICKS,
+                            MAX_OXIDATION_AGE_TICKS
+                        );
+                }
+
+                // Vanilla evaluates statue conversion from the state that existed
+                // at the start of this tick; a newly oxidized golem waits until
+                // the following tick before it can become a statue.
+                if (isFullyOxidized && canTurnToStatue(level)) {
+                    turnToStatue(level);
+                }
+            }
         }
     }
     
     private boolean canTurnToStatue(Level level) {
-        return level.getBlockState(this.blockPosition()).is(Blocks.AIR) && 
-               level.random.nextFloat() <= TURN_TO_STATUE_CHANCE;
+        return level.getBlockState(this.blockPosition()).isAir()
+            && level.random.nextFloat() <= TURN_TO_STATUE_CHANCE;
     }
     
     private void turnToStatue(ServerLevel level) {
