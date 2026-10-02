@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.entity;
 
 import com.github.smallinger.copperagebackport.ModSounds;
+import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.block.CopperGolemStatueBlock;
 import com.github.smallinger.copperagebackport.block.entity.CopperGolemStatueBlockEntity;
 import com.github.smallinger.copperagebackport.config.CommonConfig;
@@ -97,7 +98,6 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
     public final AnimationState interactionGetNoItemAnimationState = new AnimationState();
     public final AnimationState interactionDropItemAnimationState = new AnimationState();
     public final AnimationState interactionDropNoItemAnimationState = new AnimationState();
-    public final AnimationState pressingButtonAnimationState = new AnimationState();
 
     public CopperGolemEntity(EntityType<? extends AbstractGolem> entityType, Level level) {
         super(entityType, level);
@@ -336,7 +336,6 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
                 this.interactionGetItemAnimationState.stop();
                 this.interactionDropItemAnimationState.stop();
                 this.interactionDropNoItemAnimationState.stop();
-                this.pressingButtonAnimationState.stop();
                 
                 if (this.idleAnimationStartTick == this.tickCount) {
                     this.idleAnimationState.start(this.tickCount);
@@ -355,7 +354,6 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
                 this.interactionGetNoItemAnimationState.stop();
                 this.interactionDropItemAnimationState.stop();
                 this.interactionDropNoItemAnimationState.stop();
-                this.pressingButtonAnimationState.stop();
                 this.interactionGetItemAnimationState.startIfStopped(this.tickCount);
                 break;
             case GETTING_NO_ITEM:
@@ -364,7 +362,6 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
                 this.interactionGetItemAnimationState.stop();
                 this.interactionDropNoItemAnimationState.stop();
                 this.interactionDropItemAnimationState.stop();
-                this.pressingButtonAnimationState.stop();
                 this.interactionGetNoItemAnimationState.startIfStopped(this.tickCount);
                 break;
             case DROPPING_ITEM:
@@ -373,7 +370,6 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
                 this.interactionGetItemAnimationState.stop();
                 this.interactionGetNoItemAnimationState.stop();
                 this.interactionDropNoItemAnimationState.stop();
-                this.pressingButtonAnimationState.stop();
                 this.interactionDropItemAnimationState.startIfStopped(this.tickCount);
                 break;
             case DROPPING_NO_ITEM:
@@ -382,17 +378,7 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
                 this.interactionGetItemAnimationState.stop();
                 this.interactionGetNoItemAnimationState.stop();
                 this.interactionDropItemAnimationState.stop();
-                this.pressingButtonAnimationState.stop();
                 this.interactionDropNoItemAnimationState.startIfStopped(this.tickCount);
-                break;
-            case PRESSING_BUTTON:
-                this.idleAnimationState.stop();
-                this.idleAnimationStartTick = 0;
-                this.interactionGetItemAnimationState.stop();
-                this.interactionGetNoItemAnimationState.stop();
-                this.interactionDropItemAnimationState.stop();
-                this.interactionDropNoItemAnimationState.stop();
-                this.pressingButtonAnimationState.startIfStopped(this.tickCount);
                 break;
         }
     }
@@ -520,9 +506,7 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
 
     @Override
     public boolean readyForShearing() {
-        // In vanilla 1.21.10, this checks ItemTags.SHEARABLE_FROM_COPPER_GOLEM which only contains poppy.
-        // We check directly for poppy since the tag doesn't exist in older versions.
-        return this.isAlive() && this.getItemBySlot(EQUIPMENT_SLOT_ANTENNA).is(Items.POPPY);
+        return this.isAlive() && this.getItemBySlot(EQUIPMENT_SLOT_ANTENNA).is(ModTags.Items.SHEARABLE_FROM_COPPER_GOLEM);
     }
 
     /**

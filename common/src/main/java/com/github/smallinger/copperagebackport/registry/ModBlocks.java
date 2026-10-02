@@ -32,18 +32,6 @@ public class ModBlocks {
     public static Supplier<CopperChestBlock> WAXED_WEATHERED_COPPER_CHEST;
     public static Supplier<CopperChestBlock> WAXED_OXIDIZED_COPPER_CHEST;
     
-    // Copper Button Blocks (Weathering)
-    public static Supplier<CopperButtonBlock> COPPER_BUTTON;
-    public static Supplier<CopperButtonBlock> EXPOSED_COPPER_BUTTON;
-    public static Supplier<CopperButtonBlock> WEATHERED_COPPER_BUTTON;
-    public static Supplier<CopperButtonBlock> OXIDIZED_COPPER_BUTTON;
-    
-    // Waxed Copper Button Blocks
-    public static Supplier<WaxedCopperButtonBlock> WAXED_COPPER_BUTTON;
-    public static Supplier<WaxedCopperButtonBlock> WAXED_EXPOSED_COPPER_BUTTON;
-    public static Supplier<WaxedCopperButtonBlock> WAXED_WEATHERED_COPPER_BUTTON;
-    public static Supplier<WaxedCopperButtonBlock> WAXED_OXIDIZED_COPPER_BUTTON;
-    
     // Copper Golem Statue Blocks (Weathering)
     public static Supplier<WeatheringCopperGolemStatueBlock> COPPER_GOLEM_STATUE;
     public static Supplier<WeatheringCopperGolemStatueBlock> EXPOSED_COPPER_GOLEM_STATUE;
@@ -196,76 +184,6 @@ public class ModBlocks {
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()));
-        
-        // Register Copper Button Blocks (NOT in vanilla - stays at copperagebackport: namespace)
-        COPPER_BUTTON = helper.register(BLOCK, "copper_button",
-            () -> new CopperButtonBlock(
-                WeatheringCopper.WeatherState.UNAFFECTED,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
-        
-        EXPOSED_COPPER_BUTTON = helper.register(BLOCK, "exposed_copper_button",
-            () -> new CopperButtonBlock(
-                WeatheringCopper.WeatherState.EXPOSED,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
-        
-        WEATHERED_COPPER_BUTTON = helper.register(BLOCK, "weathered_copper_button",
-            () -> new CopperButtonBlock(
-                WeatheringCopper.WeatherState.WEATHERED,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
-        
-        OXIDIZED_COPPER_BUTTON = helper.register(BLOCK, "oxidized_copper_button",
-            () -> new CopperButtonBlock(
-                WeatheringCopper.WeatherState.OXIDIZED,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
-        
-        // Register Waxed Copper Button Blocks (NOT in vanilla - stays at copperagebackport: namespace)
-        WAXED_COPPER_BUTTON = helper.register(BLOCK, "waxed_copper_button",
-            () -> new WaxedCopperButtonBlock(
-                WeatheringCopper.WeatherState.UNAFFECTED,
-                COPPER_BUTTON,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
-        
-        WAXED_EXPOSED_COPPER_BUTTON = helper.register(BLOCK, "waxed_exposed_copper_button",
-            () -> new WaxedCopperButtonBlock(
-                WeatheringCopper.WeatherState.EXPOSED,
-                EXPOSED_COPPER_BUTTON,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
-        
-        WAXED_WEATHERED_COPPER_BUTTON = helper.register(BLOCK, "waxed_weathered_copper_button",
-            () -> new WaxedCopperButtonBlock(
-                WeatheringCopper.WeatherState.WEATHERED,
-                WEATHERED_COPPER_BUTTON,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
-        
-        WAXED_OXIDIZED_COPPER_BUTTON = helper.register(BLOCK, "waxed_oxidized_copper_button",
-            () -> new WaxedCopperButtonBlock(
-                WeatheringCopper.WeatherState.OXIDIZED,
-                OXIDIZED_COPPER_BUTTON,
-                BlockBehaviour.Properties.of()
-                    .noCollission()
-                    .strength(0.5F)
-                    .sound(SoundType.COPPER)));
         
         // Register Copper Golem Statue Blocks
         COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "copper_golem_statue",
@@ -695,13 +613,6 @@ public class ModBlocks {
                     .noOcclusion()
                     .requiresCorrectToolForDrops()));
         
-        // Setup button references after registration
-        helper.onRegisterComplete(() -> {
-            COPPER_BUTTON.get().setWaxedButton(WAXED_COPPER_BUTTON);
-            EXPOSED_COPPER_BUTTON.get().setWaxedButton(WAXED_EXPOSED_COPPER_BUTTON);
-            WEATHERED_COPPER_BUTTON.get().setWaxedButton(WAXED_WEATHERED_COPPER_BUTTON);
-            OXIDIZED_COPPER_BUTTON.get().setWaxedButton(WAXED_OXIDIZED_COPPER_BUTTON);
-        });
     }
     
     private static BlockBehaviour.Properties shelfProperties() {

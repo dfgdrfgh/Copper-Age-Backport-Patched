@@ -39,31 +39,6 @@ public class ConfigOptions {
             .defaultValue(true)
             .build();
 
-        // Golem behavior option
-        Option<Boolean> golemPressesButtons = OptionImpl.<Boolean>builder(Boolean.class)
-            .name("config.copperagebackport.golem_presses_buttons")
-            .tooltip("config.copperagebackport.golem_presses_buttons.tooltip")
-            .control(TickBoxControl::new)
-            .binding(
-                CommonConfig::golemPressesButtons,
-                CommonConfig::setGolemPressesButtons
-            )
-            .defaultValue(true)
-            .build();
-
-        // Button press chance option
-        Option<Integer> buttonPressChance = OptionImpl.<Integer>builder(Integer.class)
-            .name("config.copperagebackport.button_press_chance")
-            .tooltip("config.copperagebackport.button_press_chance.tooltip")
-            .control(opt -> new SliderControl(opt, 0, 100, 5, "%"))
-            .binding(
-                CommonConfig::buttonPressChancePercent,
-                CommonConfig::setButtonPressChancePercent
-            )
-            .defaultValue(10)
-            .available(CommonConfig::golemPressesButtons)
-            .build();
-
         // Golem transport stack size option
         Option<Integer> golemTransportStackSize = OptionImpl.<Integer>builder(Integer.class)
             .name("config.copperagebackport.golem_transport_stack_size")
@@ -109,8 +84,6 @@ public class ConfigOptions {
         OptionGroup behaviorGroup = OptionGroup.builder()
             .name("config.copperagebackport.group.behavior")
             .add(golemBuildSpawning)
-            .add(golemPressesButtons)
-            .add(buttonPressChance)
             .build();
 
         OptionGroup weatheringGroup = OptionGroup.builder()

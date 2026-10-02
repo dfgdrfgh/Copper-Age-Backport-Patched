@@ -112,10 +112,6 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     }
 
     protected boolean checkExtraStartConditions(ServerLevel level, PathfinderMob mob) {
-        // Verhindere Start wenn ButtonPress aktiv ist (darf nicht unterbrochen werden)
-        if (mob.getBrain().getMemory(ModMemoryTypes.IS_PRESSING_BUTTON.get()).orElse(false)) {
-            return false;
-        }
         return !mob.isLeashed();
     }
 
@@ -627,8 +623,6 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
         mob.getBrain().setMemory(ModMemoryTypes.TRANSPORT_ITEMS_COOLDOWN_TICKS.get(), 140);
         mob.getBrain().eraseMemory(ModMemoryTypes.VISITED_BLOCK_POSITIONS.get());
         mob.getBrain().eraseMemory(ModMemoryTypes.UNREACHABLE_TRANSPORT_BLOCK_POSITIONS.get());
-        // Setze LAST_CONTAINER_EMPTY Memory für ButtonPress-Trigger (20% Chance)
-        mob.getBrain().setMemory(ModMemoryTypes.LAST_CONTAINER_EMPTY.get(), mob.level().getGameTime());
     }
 
     protected void stop(ServerLevel level, PathfinderMob mob, long gameTime) {

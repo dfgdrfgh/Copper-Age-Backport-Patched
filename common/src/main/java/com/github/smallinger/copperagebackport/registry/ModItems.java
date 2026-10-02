@@ -56,18 +56,6 @@ public class ModItems {
     public static Supplier<BlockItem> WAXED_WEATHERED_COPPER_CHEST_ITEM;
     public static Supplier<BlockItem> WAXED_OXIDIZED_COPPER_CHEST_ITEM;
     
-    // Copper Button Items
-    public static Supplier<BlockItem> COPPER_BUTTON_ITEM;
-    public static Supplier<BlockItem> EXPOSED_COPPER_BUTTON_ITEM;
-    public static Supplier<BlockItem> WEATHERED_COPPER_BUTTON_ITEM;
-    public static Supplier<BlockItem> OXIDIZED_COPPER_BUTTON_ITEM;
-    
-    // Waxed Copper Button Items
-    public static Supplier<BlockItem> WAXED_COPPER_BUTTON_ITEM;
-    public static Supplier<BlockItem> WAXED_EXPOSED_COPPER_BUTTON_ITEM;
-    public static Supplier<BlockItem> WAXED_WEATHERED_COPPER_BUTTON_ITEM;
-    public static Supplier<BlockItem> WAXED_OXIDIZED_COPPER_BUTTON_ITEM;
-    
     // Copper Golem Statue Items
     public static Supplier<BlockItem> COPPER_GOLEM_STATUE_ITEM;
     public static Supplier<BlockItem> EXPOSED_COPPER_GOLEM_STATUE_ITEM;
@@ -179,32 +167,6 @@ public class ModItems {
         
         WAXED_OXIDIZED_COPPER_CHEST_ITEM = helper.registerAuto(ITEM, "waxed_oxidized_copper_chest",
             () -> ModItemHelper.create3DBlockItemForPlatform(ModBlocks.WAXED_OXIDIZED_COPPER_CHEST.get(), new Item.Properties()));
-        
-        // Register Copper Button Items (NOT in vanilla - stays at copperagebackport: namespace)
-        COPPER_BUTTON_ITEM = helper.register(ITEM, "copper_button",
-            () -> new BlockItem(ModBlocks.COPPER_BUTTON.get(), new Item.Properties()));
-        
-        EXPOSED_COPPER_BUTTON_ITEM = helper.register(ITEM, "exposed_copper_button",
-            () -> new BlockItem(ModBlocks.EXPOSED_COPPER_BUTTON.get(), new Item.Properties()));
-        
-        WEATHERED_COPPER_BUTTON_ITEM = helper.register(ITEM, "weathered_copper_button",
-            () -> new BlockItem(ModBlocks.WEATHERED_COPPER_BUTTON.get(), new Item.Properties()));
-        
-        OXIDIZED_COPPER_BUTTON_ITEM = helper.register(ITEM, "oxidized_copper_button",
-            () -> new BlockItem(ModBlocks.OXIDIZED_COPPER_BUTTON.get(), new Item.Properties()));
-        
-        // Register Waxed Copper Button Items (NOT in vanilla - stays at copperagebackport: namespace)
-        WAXED_COPPER_BUTTON_ITEM = helper.register(ITEM, "waxed_copper_button",
-            () -> new BlockItem(ModBlocks.WAXED_COPPER_BUTTON.get(), new Item.Properties()));
-        
-        WAXED_EXPOSED_COPPER_BUTTON_ITEM = helper.register(ITEM, "waxed_exposed_copper_button",
-            () -> new BlockItem(ModBlocks.WAXED_EXPOSED_COPPER_BUTTON.get(), new Item.Properties()));
-        
-        WAXED_WEATHERED_COPPER_BUTTON_ITEM = helper.register(ITEM, "waxed_weathered_copper_button",
-            () -> new BlockItem(ModBlocks.WAXED_WEATHERED_COPPER_BUTTON.get(), new Item.Properties()));
-        
-        WAXED_OXIDIZED_COPPER_BUTTON_ITEM = helper.register(ITEM, "waxed_oxidized_copper_button",
-            () -> new BlockItem(ModBlocks.WAXED_OXIDIZED_COPPER_BUTTON.get(), new Item.Properties()));
         
         // Register Copper Golem Statue Items
         COPPER_GOLEM_STATUE_ITEM = helper.registerAuto(ITEM, "copper_golem_statue",

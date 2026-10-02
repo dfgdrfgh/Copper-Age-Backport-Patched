@@ -2,14 +2,12 @@ package com.github.smallinger.copperagebackport.entity.ai;
 
 import com.github.smallinger.copperagebackport.Constants;
 import com.github.smallinger.copperagebackport.compat.ModCompat;
-import com.github.smallinger.copperagebackport.config.CommonConfig;
 import com.github.smallinger.copperagebackport.ModMemoryTypes;
 import com.github.smallinger.copperagebackport.ModSounds;
 import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
 import com.github.smallinger.copperagebackport.entity.CopperGolemState;
 import com.github.smallinger.copperagebackport.entity.ai.behavior.InteractWithDoor;
-import com.github.smallinger.copperagebackport.entity.ai.behavior.PressRandomCopperButton;
 import com.github.smallinger.copperagebackport.entity.ai.behavior.TransportItemsBetweenContainers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -67,8 +65,6 @@ public class CopperGolemAi {
         ModMemoryTypes.TRANSPORT_ITEMS_COOLDOWN_TICKS.get(),
         ModMemoryTypes.VISITED_BLOCK_POSITIONS.get(),
         ModMemoryTypes.UNREACHABLE_TRANSPORT_BLOCK_POSITIONS.get(),
-        ModMemoryTypes.IS_PRESSING_BUTTON.get(),
-        ModMemoryTypes.LAST_CONTAINER_EMPTY.get()
         // MemoryModuleType.DOORS_TO_CLOSE - requires InteractWithDoor from 1.21.10+
     );
     
@@ -132,22 +128,12 @@ public class CopperGolemAi {
             shouldQueueForTarget()  // Should queue predicate
         )));
         
-        // Prio 1: Press Random Copper Button (nur wenn Config aktiviert)
-        if (CommonConfig.golemPressesButtons()) {
-            behaviorsBuilder.add(Pair.of(1, new PressRandomCopperButton(
-                1.0F,  // Speed Modifier (normale Geschwindigkeit)
-                16,    // Horizontal Search Distance (16 Blöcke)
-                4,     // Vertical Search Distance (4 Blöcke)
-                150    // Base Press Interval (7.5 Sekunden = 150 Ticks, behavior adds randomness internally)
-            )));
-        }
+        // Prio 1: Schaue manchmal Spieler an (6 Blöcke Reichweite, 40-80 Ticks Interval)
+        behaviorsBuilder.add(Pair.of(1, SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(40, 80))));
         
-        // Prio 2: Schaue manchmal Spieler an (6 Blöcke Reichweite, 40-80 Ticks Interval)
-        behaviorsBuilder.add(Pair.of(2, SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(40, 80))));
-        
-        // Prio 3: Herumlaufen oder Stillstehen
+        // Prio 2: Herumlaufen oder Stillstehen
         // Nur wenn kein Walk-Target gesetzt ist UND Transport-Cooldown aktiv ist
-        behaviorsBuilder.add(Pair.of(3, new RunOne<>(
+        behaviorsBuilder.add(Pair.of(2, new RunOne<>(
             ImmutableMap.of(
                 MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT,
                 ModMemoryTypes.TRANSPORT_ITEMS_COOLDOWN_TICKS.get(), MemoryStatus.VALUE_PRESENT
@@ -306,24 +292,14 @@ public class CopperGolemAi {
      * WICHTIG: Copper Chests sind ausgeschlossen (sind nur Source, nicht Destination)!
      */
     private static boolean isValidDestinationContainer(BlockState state) {
-        // WICHTIG: Copper Chests sind keine gültigen Ziele (nur Quellen)!
-        // Sonst würde der Golem Items zwischen Copper Chests hin und her schieben
         if (state.is(ModTags.Blocks.COPPER_CHESTS)) {
             return false;
         }
-        
-        // Check if block extends ChestBlock (covers Vanilla + Woodworks + Quark + other mods)
-        if (state.getBlock() instanceof ChestBlock) {
-            return true;
-        }
-        // Check if block extends BarrelBlock (covers Vanilla + mods)
-        if (state.getBlock() instanceof BarrelBlock) {
-            return true;
-        }
-        // ModCompat containers (SophisticatedStorage, IronChests, etc. that don't extend ChestBlock)
-        return ModCompat.isValidModContainer(state);
+
+        // Vanilla Copper Golems deposit only into normal and trapped chests.
+        return state.getBlock() instanceof ChestBlock;
     }
-    
+
     /**
      * Update Activity - Wird jeden Tick aufgerufen
      */
