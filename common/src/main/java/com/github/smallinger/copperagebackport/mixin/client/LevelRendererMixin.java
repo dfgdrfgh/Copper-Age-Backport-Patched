@@ -56,9 +56,6 @@ public abstract class LevelRendererMixin {
         // Only render if flash is active
         if (intensity <= 0.0001F) return;
         
-        // Check if lightning flash is hidden
-        if (this.minecraft.options.hideLightningFlash().get()) return;
-        
         // While the ender dragon fog effect is active, the flash source in the sky is not visible
         if (this.minecraft.gui.getBossOverlay().shouldCreateWorldFog()) return;
         
