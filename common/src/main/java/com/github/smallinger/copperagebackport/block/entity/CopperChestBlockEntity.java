@@ -14,8 +14,10 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.phys.AABB;
 
 import com.github.smallinger.copperagebackport.block.CopperChestBlock;
+import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
 import com.github.smallinger.copperagebackport.registry.ModBlockEntities;
 
 public class CopperChestBlockEntity extends ChestBlockEntity {
@@ -120,5 +122,22 @@ public class CopperChestBlockEntity extends ChestBlockEntity {
 
     public int getPlayerOpenerCount() {
         return this.openersCounter.getOpenerCount();
+    }
+
+    public boolean hasAnyViewer() {
+        if (this.openersCounter.getOpenerCount() > 0) {
+            return true;
+        }
+        if (this.getLevel() == null) {
+            return false;
+        }
+
+        // Modern ViewerCountManager searches max interaction range (3) + 4.
+        AABB searchBox = new AABB(this.getBlockPos()).inflate(7.0);
+        return !this.getLevel().getEntitiesOfClass(
+            CopperGolemEntity.class,
+            searchBox,
+            golem -> golem.isViewingContainerAt(this.getBlockPos())
+        ).isEmpty();
     }
 }

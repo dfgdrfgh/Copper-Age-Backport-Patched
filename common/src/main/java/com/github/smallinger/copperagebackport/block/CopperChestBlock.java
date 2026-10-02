@@ -6,25 +6,22 @@ import com.github.smallinger.copperagebackport.block.entity.CopperChestBlockEnti
 import com.github.smallinger.copperagebackport.platform.Services;
 import com.github.smallinger.copperagebackport.registry.ModBlockEntities;
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.util.CopperInteractionHelper;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -291,129 +288,41 @@ public class CopperChestBlock extends ChestBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, 
-                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
-        // Check if player is using an axe on a waxed chest - dewax it
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
         if (stack.is(ItemTags.AXES)) {
-            // Don't allow dewaxing if chest is open
-            if (level.getBlockEntity(pos) instanceof CopperChestBlockEntity chestEntity && chestEntity.isChestOpen()) {
+            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
                 return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             }
-            
-            Optional<Block> unwaxedBlock = getUnwaxedBlock(state.getBlock());
-            
-            if (unwaxedBlock.isPresent()) {
-                ChestType chestType = state.getValue(TYPE);
-                Block newBlock = unwaxedBlock.get();
-                
-                // Play sounds and particles for both chests BEFORE server check
-                if (chestType != ChestType.SINGLE) {
-                    Direction connectedDir = ChestBlock.getConnectedDirection(state);
-                    BlockPos connectedPos = pos.relative(connectedDir);
-                    BlockState connectedState = level.getBlockState(connectedPos);
-                    
-                    if (connectedState.getBlock() == state.getBlock()) {
-                        // Play sounds and particles for both chests
-                        level.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                        level.levelEvent(player, 3004, pos, 0);
-                        level.playSound(player, connectedPos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                        level.levelEvent(player, 3004, connectedPos, 0);
-                    } else {
-                        level.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                        level.levelEvent(player, 3004, pos, 0);
-                    }
-                } else {
-                    // Single chest
-                    level.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    level.levelEvent(player, 3004, pos, 0);
-                }
-                
-                if (!level.isClientSide) {
-                    NonNullList<ItemStack> currentItems = copyInventoryAndClear(level, pos);
-                    NonNullList<ItemStack> connectedItems = NonNullList.create();
-                    BlockState newState = newBlock.withPropertiesOf(state);
-                    
-                    // If this is a double chest, update both halves atomically
-                    if (chestType != ChestType.SINGLE) {
-                        Direction connectedDir = ChestBlock.getConnectedDirection(state);
-                        BlockPos connectedPos = pos.relative(connectedDir);
-                        BlockState connectedState = level.getBlockState(connectedPos);
-                        
-                        if (connectedState.getBlock() == state.getBlock()) {
-                            BlockState connectedNewState = newBlock.withPropertiesOf(connectedState);
-                            connectedItems = copyInventoryAndClear(level, connectedPos);
-                            
-                            // Update both chests with flag 2 (no block updates to neighbors yet)
-                            level.setBlock(pos, newState, 2);
-                            level.setBlock(connectedPos, connectedNewState, 2);
 
-                            // Manually notify both halves so the double chest connection stays intact
-                            level.blockUpdated(pos, newBlock);
-                            level.blockUpdated(connectedPos, newBlock);
-                            
-                            restoreInventory(level, pos, currentItems);
-                            restoreInventory(level, connectedPos, connectedItems);
-                        } else {
-                            // Other half is different, update only this one
-                            level.setBlockAndUpdate(pos, newState);
-                            restoreInventory(level, pos, currentItems);
-                        }
-                    } else {
-                        // Single chest - normal update
-                        level.setBlockAndUpdate(pos, newState);
-                        restoreInventory(level, pos, currentItems);
-                    }
-                    
-                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-                }
-                
-                return ItemInteractionResult.SUCCESS;
+            Optional<Block> unwaxedBlock = getUnwaxedBlock(state.getBlock());
+            if (unwaxedBlock.isPresent()) {
+                BlockPos connectedEffectPos = state.getValue(TYPE) == ChestType.SINGLE
+                    ? null
+                    : pos.relative(ChestBlock.getConnectedDirection(state));
+
+                CopperInteractionHelper.axeTransform(
+                    level,
+                    pos,
+                    unwaxedBlock.get().withPropertiesOf(state),
+                    player,
+                    hand,
+                    stack,
+                    SoundEvents.AXE_WAX_OFF,
+                    3004,
+                    connectedEffectPos
+                );
+                return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
-            // Block chest opening even if not waxed
-            return ItemInteractionResult.SUCCESS;
         }
-        
-        // Default chest behavior (open inventory)
+
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
-
-    /**
-     * Copy all items from the chest at the given position and clear the container to avoid drop logic.
-     */
-    protected static NonNullList<ItemStack> copyInventoryAndClear(Level level, BlockPos pos) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof Container container) {
-            NonNullList<ItemStack> items = NonNullList.withSize(container.getContainerSize(), ItemStack.EMPTY);
-            for (int i = 0; i < container.getContainerSize(); i++) {
-                items.set(i, container.getItem(i).copy());
-            }
-            container.clearContent();
-            if (blockEntity instanceof CopperChestBlockEntity chestEntity) {
-                chestEntity.setChanged();
-            }
-            return items;
-        }
-        return NonNullList.create();
-    }
-
-    /**
-     * Restore previously copied items into the chest at the given position.
-     */
-    protected static void restoreInventory(Level level, BlockPos pos, NonNullList<ItemStack> items) {
-        if (items.isEmpty()) {
-            return;
-        }
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof Container container) {
-            for (int i = 0; i < Math.min(container.getContainerSize(), items.size()); i++) {
-                container.setItem(i, items.get(i));
-            }
-            if (blockEntity instanceof CopperChestBlockEntity chestEntity) {
-                chestEntity.setChanged();
-            }
-        }
-    }
 }
-
-
-
