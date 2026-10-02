@@ -278,7 +278,7 @@ public class ModBlocks {
         BAMBOO_SHELF = helper.registerAuto(BLOCK, "bamboo_shelf", () -> new ShelfBlock(shelfProperties(Blocks.BAMBOO_PLANKS.defaultMapColor())));
         CRIMSON_SHELF = helper.registerAuto(BLOCK, "crimson_shelf", () -> new ShelfBlock(shelfProperties(MapColor.CRIMSON_STEM)));
         WARPED_SHELF = helper.registerAuto(BLOCK, "warped_shelf", () -> new ShelfBlock(shelfProperties(MapColor.WARPED_STEM)));
-        PALE_OAK_SHELF = helper.registerAuto(BLOCK, "pale_oak_shelf", () -> new ShelfBlock(shelfProperties(Blocks.PALE_OAK_PLANKS.defaultMapColor())));
+        PALE_OAK_SHELF = helper.registerAuto(BLOCK, "pale_oak_shelf", () -> new ShelfBlock(shelfProperties(MapColor.QUARTZ)));
         
         // Register Copper Torch Blocks
         COPPER_TORCH = helper.registerAuto(BLOCK, "copper_torch",
@@ -486,7 +486,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()
                     .randomTicks()));
         
@@ -497,7 +496,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()
                     .randomTicks()));
         
@@ -508,7 +506,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()
                     .randomTicks()));
         
@@ -519,7 +516,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()));
         
         // Register Waxed Copper Bars Blocks
@@ -530,7 +526,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()));
         
         WAXED_EXPOSED_COPPER_BARS = helper.registerAuto(BLOCK, "waxed_exposed_copper_bars",
@@ -540,7 +535,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()));
         
         WAXED_WEATHERED_COPPER_BARS = helper.registerAuto(BLOCK, "waxed_weathered_copper_bars",
@@ -550,7 +544,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()));
         
         WAXED_OXIDIZED_COPPER_BARS = helper.registerAuto(BLOCK, "waxed_oxidized_copper_bars",
@@ -560,7 +553,6 @@ public class ModBlocks {
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
-                    .forceSolidOn()
                     .requiresCorrectToolForDrops()));
         
         // Register Lightning Rod Blocks (Weathering)
