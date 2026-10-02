@@ -1,7 +1,6 @@
 package com.github.smallinger.copperagebackport.registry;
 
 import com.github.smallinger.copperagebackport.Constants;
-import com.github.smallinger.copperagebackport.item.armor.CopperHorseArmorItem;
 import com.github.smallinger.copperagebackport.item.tools.CopperTier;
 import com.github.smallinger.copperagebackport.platform.Services;
 import net.minecraft.world.item.AxeItem;
@@ -13,6 +12,7 @@ import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.AnimalArmorItem;
 import net.minecraft.core.Direction;
 
 import java.util.function.Supplier;
@@ -383,6 +383,6 @@ public class ModItems {
         // -> automatically looks for: copperagebackport:textures/entity/horse/armor/horse_armor_copper.png
         // Note: 1.20.1 uses custom CopperHorseArmorItem class because HorseArmorItem only supports minecraft namespace
         COPPER_HORSE_ARMOR = helper.registerAuto(ITEM, "copper_horse_armor",
-            () -> new CopperHorseArmorItem(com.github.smallinger.copperagebackport.item.armor.CopperArmorMaterial.COPPER.get(), new Item.Properties().stacksTo(1)));
+            () -> new AnimalArmorItem(com.github.smallinger.copperagebackport.item.armor.CopperArmorMaterial.COPPER.get(), AnimalArmorItem.BodyType.EQUESTRIAN, false, new Item.Properties().stacksTo(1)));
     }
 }
