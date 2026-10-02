@@ -111,7 +111,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "unconnected"
+            "side_chain": "unconnected"
           }
         ]
       }
@@ -130,7 +130,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "unconnected"
+            "side_chain": "unconnected"
           }
         ]
       }
@@ -149,7 +149,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "unconnected"
+            "side_chain": "unconnected"
           }
         ]
       }
@@ -168,7 +168,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "unconnected"
+            "side_chain": "unconnected"
           }
         ]
       }
@@ -186,7 +186,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "left"
+            "side_chain": "left"
           }
         ]
       }
@@ -205,7 +205,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "left"
+            "side_chain": "left"
           }
         ]
       }
@@ -224,7 +224,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "left"
+            "side_chain": "left"
           }
         ]
       }
@@ -243,7 +243,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "left"
+            "side_chain": "left"
           }
         ]
       }
@@ -261,7 +261,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "center"
+            "side_chain": "center"
           }
         ]
       }
@@ -280,7 +280,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "center"
+            "side_chain": "center"
           }
         ]
       }
@@ -299,7 +299,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "center"
+            "side_chain": "center"
           }
         ]
       }
@@ -318,7 +318,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "center"
+            "side_chain": "center"
           }
         ]
       }
@@ -336,7 +336,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "right"
+            "side_chain": "right"
           }
         ]
       }
@@ -355,7 +355,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "right"
+            "side_chain": "right"
           }
         ]
       }
@@ -374,7 +374,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "right"
+            "side_chain": "right"
           }
         ]
       }
@@ -393,7 +393,7 @@
             "powered": "true"
           },
           {
-            "side_chain_part": "right"
+            "side_chain": "right"
           }
         ]
       }

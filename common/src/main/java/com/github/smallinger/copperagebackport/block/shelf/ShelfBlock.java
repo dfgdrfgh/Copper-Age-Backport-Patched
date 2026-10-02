@@ -57,7 +57,7 @@ public class ShelfBlock extends BaseEntityBlock implements SelectableSlotContain
     
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<SideChainPart> SIDE_CHAIN_PART = EnumProperty.create("side_chain_part", SideChainPart.class);
+    public static final EnumProperty<SideChainPart> SIDE_CHAIN_PART = EnumProperty.create("side_chain", SideChainPart.class);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     
     private static final Map<Direction, VoxelShape> SHAPES = createShapes();
