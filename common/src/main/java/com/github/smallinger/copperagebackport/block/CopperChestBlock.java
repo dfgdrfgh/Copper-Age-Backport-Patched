@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.block;
 
 import com.github.smallinger.copperagebackport.ModSounds;
+import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.block.entity.CopperChestBlockEntity;
 import com.github.smallinger.copperagebackport.platform.Services;
 import com.github.smallinger.copperagebackport.registry.ModBlockEntities;
@@ -19,8 +20,9 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -28,9 +30,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -70,16 +74,6 @@ public class CopperChestBlock extends ChestBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Block.box(1.0, 0.0, 1.0, 15.0, 14.0, 15.0);
-    }
-
-    @Override
-    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Block.box(1.0, 0.0, 1.0, 15.0, 14.0, 15.0);
-    }
-
-    @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CopperChestBlockEntity(pos, state);
     }
@@ -109,8 +103,152 @@ public class CopperChestBlock extends ChestBlock {
     }
 
     public static BlockState getFromCopperBlock(Block block, Direction direction, Level level, BlockPos pos) {
-        Block chestBlock = COPPER_TO_COPPER_CHEST_MAPPING.getOrDefault(block, () -> ModBlocks.COPPER_CHEST.get()).get();
-        return chestBlock.defaultBlockState().setValue(FACING, direction);
+        Block mapped = COPPER_TO_COPPER_CHEST_MAPPING.getOrDefault(block, () -> ModBlocks.COPPER_CHEST.get()).get();
+        CopperChestBlock chest = (CopperChestBlock) mapped;
+        ChestType chestType = chest.getCopperChestType(level, pos, direction);
+        BlockState initial = chest.defaultBlockState()
+            .setValue(FACING, direction)
+            .setValue(TYPE, chestType);
+        return getNormalizedDoubleChestState(initial, level, pos);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        ChestType chestType = ChestType.SINGLE;
+        Direction facing = context.getHorizontalDirection().getOpposite();
+        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+        boolean secondaryUse = context.isSecondaryUseActive();
+        Direction clickedFace = context.getClickedFace();
+
+        if (clickedFace.getAxis().isHorizontal() && secondaryUse) {
+            Direction neighborFacing = candidateCopperPartnerFacing(
+                context.getLevel(),
+                context.getClickedPos(),
+                clickedFace.getOpposite()
+            );
+            if (neighborFacing != null && neighborFacing.getAxis() != clickedFace.getAxis()) {
+                facing = neighborFacing;
+                chestType = neighborFacing.getCounterClockWise() == clickedFace.getOpposite()
+                    ? ChestType.RIGHT
+                    : ChestType.LEFT;
+            }
+        }
+
+        if (chestType == ChestType.SINGLE && !secondaryUse) {
+            chestType = getCopperChestType(context.getLevel(), context.getClickedPos(), facing);
+        }
+
+        BlockState state = this.defaultBlockState()
+            .setValue(FACING, facing)
+            .setValue(TYPE, chestType)
+            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+        return getNormalizedDoubleChestState(state, context.getLevel(), context.getClickedPos());
+    }
+
+    private ChestType getCopperChestType(Level level, BlockPos pos, Direction facing) {
+        if (facing == candidateCopperPartnerFacing(level, pos, facing.getClockWise())) {
+            return ChestType.LEFT;
+        }
+        if (facing == candidateCopperPartnerFacing(level, pos, facing.getCounterClockWise())) {
+            return ChestType.RIGHT;
+        }
+        return ChestType.SINGLE;
+    }
+
+    @Nullable
+    private static Direction candidateCopperPartnerFacing(Level level, BlockPos pos, Direction neighborDirection) {
+        BlockState neighborState = level.getBlockState(pos.relative(neighborDirection));
+        return canMergeWithCopperChest(neighborState) && neighborState.getValue(TYPE) == ChestType.SINGLE
+            ? neighborState.getValue(FACING)
+            : null;
+    }
+
+    private static boolean canMergeWithCopperChest(BlockState state) {
+        return state.is(ModTags.Blocks.COPPER_CHESTS) && state.hasProperty(TYPE) && state.hasProperty(FACING);
+    }
+
+    private static BlockState getNormalizedDoubleChestState(BlockState state, Level level, BlockPos pos) {
+        if (state.getValue(TYPE) == ChestType.SINGLE || !(state.getBlock() instanceof CopperChestBlock self)) {
+            return state;
+        }
+
+        BlockPos neighborPos = pos.relative(ChestBlock.getConnectedDirection(state));
+        BlockState neighborState = level.getBlockState(neighborPos);
+        if (!(neighborState.getBlock() instanceof CopperChestBlock neighbor)) {
+            return state;
+        }
+
+        BlockState selfState = state;
+        BlockState resolvedNeighbor = neighborState;
+        if (self.isWaxed() != neighbor.isWaxed()) {
+            selfState = getUnwaxedBlock(selfState.getBlock())
+                .map(block -> block.withPropertiesOf(selfState))
+                .orElse(selfState);
+            resolvedNeighbor = getUnwaxedBlock(resolvedNeighbor.getBlock())
+                .map(block -> block.withPropertiesOf(resolvedNeighbor))
+                .orElse(resolvedNeighbor);
+        }
+
+        Block lessOxidized = self.weatherState.ordinal() <= neighbor.weatherState.ordinal()
+            ? selfState.getBlock()
+            : resolvedNeighbor.getBlock();
+        return lessOxidized.withPropertiesOf(selfState);
+    }
+
+    @Override
+    protected BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
+    ) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+
+        if (canMergeWithCopperChest(neighborState) && direction.getAxis().isHorizontal()) {
+            ChestType neighborType = neighborState.getValue(TYPE);
+            BlockState result = state;
+
+            if (state.getValue(TYPE) == ChestType.SINGLE
+                && neighborType != ChestType.SINGLE
+                && state.getValue(FACING) == neighborState.getValue(FACING)
+                && ChestBlock.getConnectedDirection(neighborState) == direction.getOpposite()) {
+                result = state.setValue(TYPE, neighborType.getOpposite());
+            } else if (ChestBlock.getConnectedDirection(state) == direction
+                && neighborType == ChestType.SINGLE) {
+                result = state.setValue(TYPE, ChestType.SINGLE);
+            }
+
+            if (result.getValue(TYPE) != ChestType.SINGLE
+                && ChestBlock.getConnectedDirection(result) == direction) {
+                return neighborState.getBlock().withPropertiesOf(result);
+            }
+
+            return result;
+        }
+
+        if (ChestBlock.getConnectedDirection(state) == direction) {
+            return state.setValue(TYPE, ChestType.SINGLE);
+        }
+
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        // All copper chest variants share one block-entity type. Keep it in place when
+        // oxidation/waxing/double-chest normalization swaps one copper chest block for another.
+        if (state.is(ModTags.Blocks.COPPER_CHESTS) && newState.is(ModTags.Blocks.COPPER_CHESTS)) {
+            return;
+        }
+        super.onRemove(state, level, pos, newState, isMoving);
+    }
+
+    public boolean isWaxed() {
+        return true;
     }
     
     /**

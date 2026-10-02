@@ -286,6 +286,11 @@ public class WeatheringCopperChestBlock extends CopperChestBlock implements Weat
     public WeatherState getAge() {
         return this.getState();
     }
+
+    @Override
+    public boolean isWaxed() {
+        return false;
+    }
     
     protected static NonNullList<ItemStack> copyInventoryAndClear(Level level, BlockPos pos) {
         BlockEntity blockEntity = level.getBlockEntity(pos);

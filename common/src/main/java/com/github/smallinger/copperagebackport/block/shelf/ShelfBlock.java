@@ -138,7 +138,7 @@ public class ShelfBlock extends BaseEntityBlock implements SelectableSlotContain
 
     @Override
     protected boolean isPathfindable(BlockState state, PathComputationType type) {
-        return false;
+        return type == PathComputationType.WATER && state.getFluidState().is(FluidTags.WATER);
     }
 
     @Nullable
@@ -267,26 +267,12 @@ public class ShelfBlock extends BaseEntityBlock implements SelectableSlotContain
             Inventory inventory = player.getInventory();
             
             if (!state.getValue(POWERED)) {
-                // Take item from shelf - get the full stack first, then remove it
-                int slot = slotOpt.getAsInt();
-                ItemStack shelfItem = shelfEntity.getItem(slot);
-                if (!shelfItem.isEmpty()) {
-                    // Copy the item before removing
-                    ItemStack takenItem = shelfItem.copy();
-                    // Clear the slot
-                    shelfEntity.setItem(slot, ItemStack.EMPTY);
-                    
-                    // Give item to player
-                    if (!player.getInventory().add(takenItem)) {
-                        // If inventory is full, drop the item
-                        player.drop(takenItem, false);
-                    }
-                    
-                    shelfEntity.setChanged();
-                    this.playSound(level, pos, ModSounds.SHELF_TAKE_ITEM.get());
-                    return InteractionResult.CONSUME;
+                boolean swapped = swapSingleItem(ItemStack.EMPTY, player, shelfEntity, slotOpt.getAsInt(), inventory);
+                if (!swapped) {
+                    return InteractionResult.PASS;
                 }
-                return InteractionResult.PASS;
+                this.playSound(level, pos, ModSounds.SHELF_TAKE_ITEM.get());
+                return InteractionResult.CONSUME;
             } else {
                 // Hotbar swap when powered
                 boolean swapped = this.swapHotbar(level, pos, inventory);

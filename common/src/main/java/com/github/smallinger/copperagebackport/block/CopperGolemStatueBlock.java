@@ -3,6 +3,7 @@ package com.github.smallinger.copperagebackport.block;
 import com.github.smallinger.copperagebackport.block.entity.CopperGolemStatueBlockEntity;
 import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
 import com.github.smallinger.copperagebackport.ModSounds;
+import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -35,6 +37,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -131,6 +134,21 @@ public class CopperGolemStatueBlock extends BaseEntityBlock implements SimpleWat
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType type) {
+        return type == PathComputationType.WATER && state.getFluidState().is(FluidTags.WATER);
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (state.is(ModTags.Blocks.COPPER_GOLEM_STATUES) && newState.is(ModTags.Blocks.COPPER_GOLEM_STATUES)) {
+            level.updateNeighbourForOutputSignal(pos, this);
+            return;
+        }
+        super.onRemove(state, level, pos, newState, isMoving);
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Nullable
