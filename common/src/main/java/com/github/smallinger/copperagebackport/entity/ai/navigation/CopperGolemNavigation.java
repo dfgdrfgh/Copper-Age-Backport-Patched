@@ -4,6 +4,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -18,7 +19,8 @@ import net.minecraft.world.level.pathfinder.Path;
  * the surface (e.g. stacked chests).
  */
 public class CopperGolemNavigation extends GroundPathNavigation {
-    private float requiredPathLength = 16.0F;
+    private static final float VANILLA_COPPER_GOLEM_FOLLOW_RANGE = 48.0F;
+    private float maxFollowRange = VANILLA_COPPER_GOLEM_FOLLOW_RANGE;
     private boolean canPathToTargetsBelowSurface = false;
     
     public CopperGolemNavigation(Mob mob, Level level) {
@@ -26,18 +28,26 @@ public class CopperGolemNavigation extends GroundPathNavigation {
     }
     
     /**
-     * Sets the minimum path length for pathfinding calculations.
-     * Higher values = longer, better paths = less getting stuck
+     * Backports modern EntityNavigation#setMaxFollowRange, which does not exist
+     * in 1.21.1. Copper Golems use a minimum navigation range of 48 blocks.
      */
-    public void setRequiredPathLength(float requiredPathLength) {
-        this.requiredPathLength = requiredPathLength;
+    public void setMaxFollowRange(float maxFollowRange) {
+        this.maxFollowRange = maxFollowRange;
     }
-    
+
+    public float getMaxFollowRange() {
+        return this.maxFollowRange;
+    }
+
     /**
-     * Returns the minimum path length
+     * 1.21.1 normally passes the mob's FOLLOW_RANGE attribute directly into
+     * pathfinding. Modern vanilla instead uses max(FOLLOW_RANGE, 48) for the
+     * Copper Golem without changing the public entity attribute itself.
      */
-    public float getRequiredPathLength() {
-        return this.requiredPathLength;
+    @Override
+    protected Path createPath(Set<BlockPos> positions, int regionOffset, boolean useHeadPos, int accuracy) {
+        float followRange = Math.max((float) this.mob.getAttributeValue(Attributes.FOLLOW_RANGE), this.maxFollowRange);
+        return super.createPath(positions, regionOffset, useHeadPos, accuracy, followRange);
     }
     
     /**
@@ -91,7 +101,9 @@ public class CopperGolemNavigation extends GroundPathNavigation {
      * when setCanPathToTargetsBelowSurface(true) is active.
      */
     private Path createPathDirect(BlockPos pos, int accuracy) {
-        return super.createPath(Set.of(pos), 8, false, accuracy);
+        // Route through the overridden 4-argument method so the 48-block
+        // Copper Golem follow range is preserved while skipping retargeting.
+        return this.createPath(Set.of(pos), 8, false, accuracy);
     }
 }
 

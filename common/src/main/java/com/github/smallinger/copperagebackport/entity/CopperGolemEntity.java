@@ -146,7 +146,7 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
         CopperGolemNavigation navigation = new CopperGolemNavigation(this, level);
         navigation.setCanOpenDoors(true);  // Kann Türen öffnen
         navigation.setCanPassDoors(true);  // Kann durch Türen gehen
-        navigation.setRequiredPathLength(48.0F);  // Längere Pfade = bessere Navigation, weniger Blockieren
+        navigation.setMaxFollowRange(48.0F);  // Matches finalized Copper Golem navigation range
         return navigation;
     }
 
