@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.block;
 
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.util.CopperInteractionHelper;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -62,25 +63,21 @@ public class WaxedCopperLightningRodBlock extends CopperLightningRodBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
-        // Handle axe scraping to remove wax
         if (stack.is(ItemTags.AXES)) {
+            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+
             Optional<Block> unwaxed = getUnwaxedBlock();
             if (unwaxed.isPresent()) {
-                level.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3004, pos, 0); // WAX_OFF particles
-                
-                if (!level.isClientSide) {
-                    level.setBlock(pos, unwaxed.get().withPropertiesOf(state), 11);
-                    if (!player.getAbilities().instabuild) {
-                        stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND 
-                            ? net.minecraft.world.entity.EquipmentSlot.MAINHAND 
-                            : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
-                    }
-                }
+                CopperInteractionHelper.axeTransform(
+                    level, pos, unwaxed.get().withPropertiesOf(state),
+                    player, hand, stack, SoundEvents.AXE_WAX_OFF, 3004, null
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-        
+
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 }

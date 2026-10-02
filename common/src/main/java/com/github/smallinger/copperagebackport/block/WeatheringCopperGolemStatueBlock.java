@@ -5,6 +5,7 @@ import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
 import com.github.smallinger.copperagebackport.ModSounds;
 import com.github.smallinger.copperagebackport.util.WeatheringHelper;
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.util.CopperInteractionHelper;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -90,74 +91,57 @@ public class WeatheringCopperGolemStatueBlock extends CopperGolemStatueBlock imp
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                             Player player, InteractionHand hand, BlockHitResult hitResult) {
-        // Honeycomb interaction - wax the statue
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
         if (stack.is(Items.HONEYCOMB)) {
             Optional<Block> waxedBlock = getWaxedBlock(state.getBlock());
-            
             if (waxedBlock.isPresent()) {
-                level.playSound(player, pos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3003, pos, 0); // WAX_ON particles
-                
-                if (!level.isClientSide) {
-                    BlockState waxedState = waxedBlock.get().defaultBlockState()
-                        .setValue(FACING, state.getValue(FACING))
-                        .setValue(POSE, state.getValue(POSE))
-                        .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-                    level.setBlock(pos, waxedState, Block.UPDATE_ALL);
-                    
-                    if (!player.isCreative()) {
-                        stack.shrink(1);
-                    }
-                }
-                
-                return ItemInteractionResult.SUCCESS;
+                CopperInteractionHelper.wax(
+                    level, pos, waxedBlock.get().withPropertiesOf(state), player, stack, null
+                );
+                return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-        
-        // Axe interaction - scrape oxidation if possible, otherwise restore golem
+
         if (stack.is(ItemTags.AXES)) {
-            // Try scraping first if there's oxidation to remove
             Optional<Block> previousBlock = getPreviousBlock(state.getBlock());
-            
             if (previousBlock.isPresent()) {
-                level.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3005, pos, 0); // SCRAPE particles
-                
-                if (!level.isClientSide) {
-                    BlockState newState = previousBlock.get().defaultBlockState()
-                        .setValue(FACING, state.getValue(FACING))
-                        .setValue(POSE, state.getValue(POSE))
-                        .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-                    level.setBlock(pos, newState, Block.UPDATE_ALL);
-                    
-                    if (!player.isCreative()) {
-                        stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
-                    }
+                if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
+                    return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
                 }
-                
-                return ItemInteractionResult.SUCCESS;
+
+                CopperInteractionHelper.axeTransform(
+                    level, pos, previousBlock.get().withPropertiesOf(state),
+                    player, hand, stack, SoundEvents.AXE_SCRAPE, 3005, null
+                );
+                return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
-            
-            // No oxidation to remove - restore golem
-            if (!level.isClientSide()) {
-                ServerLevel serverLevel = (ServerLevel) level;
-                
-                if (level.getBlockEntity(pos) instanceof CopperGolemStatueBlockEntity statueEntity) {
-                    CopperGolemEntity golem = statueEntity.removeStatue(state, serverLevel);
-                    stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
-                    if (golem != null) {
-                        serverLevel.addFreshEntity(golem);
-                        level.removeBlock(pos, false);
-                        return ItemInteractionResult.SUCCESS;
-                    }
+
+            // Finalized vanilla restores an unaffected, unwaxed statue to a
+            // Copper Golem directly from the statue block interaction.
+            if (!level.isClientSide()
+                && level.getBlockEntity(pos) instanceof CopperGolemStatueBlockEntity statueEntity) {
+                CopperGolemEntity golem = statueEntity.removeStatue(state, (ServerLevel) level);
+                stack.hurtAndBreak(1, player, net.minecraft.world.entity.LivingEntity.getSlotForHand(hand));
+                if (golem != null) {
+                    ((ServerLevel) level).addFreshEntity(golem);
+                    level.removeBlock(pos, false);
+                    return ItemInteractionResult.SUCCESS;
                 }
             }
+
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        
+
         // Vanilla cycles the pose for every non-axe, non-honeycomb interaction.
-        if (!stack.is(ItemTags.AXES) && !stack.is(Items.HONEYCOMB)) {
+        if (!stack.is(Items.HONEYCOMB)) {
             if (!level.isClientSide()) {
                 Pose nextPose = state.getValue(POSE).getNextPose();
                 level.setBlock(pos, state.setValue(POSE, nextPose), Block.UPDATE_ALL);

@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.block;
 
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.util.CopperInteractionHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -56,29 +57,23 @@ public class CopperChainBlock extends ChainBlock {
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        // Handle axe scraping to remove wax
         if (stack.is(ItemTags.AXES)) {
+            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+
             Optional<BlockState> unwaxed = getUnwaxedBlock();
             if (unwaxed.isPresent()) {
-                // Copy axis and waterlogged state
                 BlockState newState = unwaxed.get()
                     .setValue(AXIS, state.getValue(AXIS))
                     .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-                
-                level.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3004, pos, 0); // WAX_OFF particles
-                
-                if (!level.isClientSide) {
-                    level.setBlock(pos, newState, 11);
-                    if (!player.isCreative()) {
-                        stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
-                    }
-                }
-                
+                CopperInteractionHelper.axeTransform(
+                    level, pos, newState, player, hand, stack, SoundEvents.AXE_WAX_OFF, 3004, null
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-        
+
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 }

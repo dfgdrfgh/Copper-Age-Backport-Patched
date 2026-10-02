@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.block;
 
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.util.CopperInteractionHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -87,26 +88,21 @@ public class CopperLanternBlock extends LanternBlock implements SimpleWaterlogge
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        // Check if player is using an axe on a waxed lantern - dewax it
         if (stack.is(ItemTags.AXES)) {
+            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+
             Optional<Block> unwaxedBlock = getUnwaxedBlock(state.getBlock());
-            
             if (unwaxedBlock.isPresent()) {
-                level.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3004, pos, 0); // WAX_OFF particles
-                
-                if (!level.isClientSide) {
-                    BlockState newState = unwaxedBlock.get().withPropertiesOf(state);
-                    level.setBlockAndUpdate(pos, newState);
-                    stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? 
-                        net.minecraft.world.entity.EquipmentSlot.MAINHAND : 
-                        net.minecraft.world.entity.EquipmentSlot.OFFHAND);
-                }
-                
+                CopperInteractionHelper.axeTransform(
+                    level, pos, unwaxedBlock.get().withPropertiesOf(state),
+                    player, hand, stack, SoundEvents.AXE_WAX_OFF, 3004, null
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-        
+
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 

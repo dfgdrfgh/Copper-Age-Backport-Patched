@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.block;
 
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.util.CopperInteractionHelper;
 import com.github.smallinger.copperagebackport.util.WeatheringHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -77,45 +78,31 @@ public class WeatheringCopperLanternBlock extends CopperLanternBlock implements 
     
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        // Check if player is using honeycomb to wax the lantern
         if (stack.is(Items.HONEYCOMB)) {
             Optional<Block> waxedBlock = getWaxedBlock(state.getBlock());
-            
             if (waxedBlock.isPresent()) {
-                level.playSound(player, pos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3003, pos, 0); // WAX_ON particles
-                
-                if (!level.isClientSide) {
-                    BlockState newState = waxedBlock.get().withPropertiesOf(state);
-                    level.setBlockAndUpdate(pos, newState);
-                    if (!player.isCreative()) {
-                        stack.shrink(1);
-                    }
-                }
-                
+                CopperInteractionHelper.wax(
+                    level, pos, waxedBlock.get().withPropertiesOf(state), player, stack, null
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-        
-        // Check if player is using an axe to scrape oxidation
+
         if (stack.is(ItemTags.AXES)) {
+            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+
             Optional<Block> previousBlock = getPreviousBlock(state.getBlock());
-            
             if (previousBlock.isPresent()) {
-                level.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3005, pos, 0); // SCRAPE particles
-                
-                if (!level.isClientSide) {
-                    BlockState newState = previousBlock.get().withPropertiesOf(state);
-                    level.setBlockAndUpdate(pos, newState);
-                    stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? 
-                        EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-                }
-                
+                CopperInteractionHelper.axeTransform(
+                    level, pos, previousBlock.get().withPropertiesOf(state),
+                    player, hand, stack, SoundEvents.AXE_SCRAPE, 3005, null
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-        
+
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 

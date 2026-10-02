@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.block;
 
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.util.CopperInteractionHelper;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -104,38 +105,27 @@ public class WeatheringCopperLightningRodBlock extends CopperLightningRodBlock i
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
-        // Handle honeycomb waxing
         if (stack.is(Items.HONEYCOMB)) {
             Optional<Block> waxedBlock = getWaxedBlock();
             if (waxedBlock.isPresent()) {
-                level.playSound(player, pos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3003, pos, 0); // Wax on particles
-                
-                if (!level.isClientSide) {
-                    level.setBlock(pos, waxedBlock.get().withPropertiesOf(state), 11);
-                    if (!player.getAbilities().instabuild) {
-                        stack.shrink(1);
-                    }
-                }
+                CopperInteractionHelper.wax(
+                    level, pos, waxedBlock.get().withPropertiesOf(state), player, stack, null
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
 
-        // Handle axe scraping (remove oxidation)
         if (stack.is(ItemTags.AXES)) {
+            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+
             Optional<Block> previousBlock = getPreviousBlock();
             if (previousBlock.isPresent()) {
-                level.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3005, pos, 0); // Scrape particles
-                
-                if (!level.isClientSide) {
-                    level.setBlock(pos, previousBlock.get().withPropertiesOf(state), 11);
-                    if (!player.getAbilities().instabuild) {
-                        stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND 
-                            ? net.minecraft.world.entity.EquipmentSlot.MAINHAND 
-                            : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
-                    }
-                }
+                CopperInteractionHelper.axeTransform(
+                    level, pos, previousBlock.get().withPropertiesOf(state),
+                    player, hand, stack, SoundEvents.AXE_SCRAPE, 3005, null
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
