@@ -10,7 +10,8 @@
     "LightningRodBlockMixin",
     "OfferFlowerGoalMixin",
     "PlayerDataRemapMixin",
-    "LootPoolAccessor"
+    "LootPoolAccessor",
+    "ComparatorBlockMixin"
   ],
   "client": [
     "client.ClientLevelMixin",
