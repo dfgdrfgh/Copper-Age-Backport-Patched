@@ -1,7 +1,6 @@
 package com.github.smallinger.copperagebackport.entity.ai.behavior;
 
 import com.github.smallinger.copperagebackport.ModMemoryTypes;
-import com.github.smallinger.copperagebackport.compat.ModCompat;
 import com.github.smallinger.copperagebackport.entity.ai.navigation.CopperGolemNavigation;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashSet;
@@ -30,7 +29,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
@@ -284,54 +282,45 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     }
 
     private Optional<TransportItemsBetweenContainers.TransportItemTarget> getTransportTarget(ServerLevel level, PathfinderMob mob) {
-        AABB aabb = this.getTargetSearchArea(mob);
-        Set<GlobalPos> set = getVisitedPositions(mob);
-        Set<GlobalPos> set1 = getUnreachablePositions(mob);
-        List<ChunkPos> list = ChunkPos.rangeClosed(new ChunkPos(mob.blockPosition()), Math.floorDiv(this.getHorizontalSearchDistance(mob), 16) + 1)
-            .toList();
-        
-        // Collect all BlockEntities and sort by BlockPos.hashCode() to match 1.21.10 iteration order
-        // In 1.21.10, ChunkAccess uses Object2ObjectOpenHashMap which iterates based on hash position
-        // BlockPos.hashCode() = (Y + Z * 31) * 31 + X
-        List<BlockEntity> allBlockEntities = new java.util.ArrayList<>();
-        
-        for (ChunkPos chunkpos : list) {
-            LevelChunk levelchunk = level.getChunkSource().getChunkNow(chunkpos.x, chunkpos.z);
-            if (levelchunk != null) {
-                allBlockEntities.addAll(levelchunk.getBlockEntities().values());
+        AABB searchArea = this.getTargetSearchArea(mob);
+        Set<GlobalPos> visited = getVisitedPositions(mob);
+        Set<GlobalPos> unreachable = getUnreachablePositions(mob);
+        List<ChunkPos> chunks = ChunkPos.rangeClosed(
+            new ChunkPos(mob.blockPosition()),
+            Math.floorDiv(this.getHorizontalSearchDistance(mob), 16) + 1
+        ).toList();
+
+        TransportItemsBetweenContainers.TransportItemTarget nearest = null;
+        double nearestDistance = Float.MAX_VALUE;
+
+        // Match finalized vanilla: iterate loaded chunks, then each chunk's natural
+        // block-entity map order, considering only chest block entities.
+        for (ChunkPos chunkPos : chunks) {
+            LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
+            if (chunk == null) {
+                continue;
             }
-        }
-        
-        // Sort by BlockPos.hashCode() DESCENDING to match 1.21.10 Object2ObjectOpenHashMap iteration
-        // Higher hash values (higher Z) come first
-        allBlockEntities.sort(java.util.Comparator.comparingInt((BlockEntity be) -> be.getBlockPos().hashCode()).reversed());
-        
-        // Now iterate using exact 1.21.10 logic
-        TransportItemsBetweenContainers.TransportItemTarget transportitemsbetweencontainers$transportitemtarget = null;
-        double d0 = Float.MAX_VALUE;
-        
-        for (BlockEntity blockentity : allBlockEntities) {
-            // Support Vanilla containers and mod containers (SophisticatedStorage, etc.)
-            BlockState blockState = level.getBlockState(blockentity.getBlockPos());
-            boolean isVanillaContainer = blockentity instanceof ChestBlockEntity || blockentity instanceof BarrelBlockEntity;
-            boolean isModContainer = ModCompat.isValidModContainer(blockState);
-            if (isVanillaContainer || isModContainer) {
-                double d1 = blockentity.getBlockPos().distToCenterSqr(mob.position());
-                if (d1 < d0) {
-                    TransportItemsBetweenContainers.TransportItemTarget transportitemsbetweencontainers$transportitemtarget1 = this.isTargetValidToPick(
-                        mob, level, blockentity, set, set1, aabb
-                    );
-                    if (transportitemsbetweencontainers$transportitemtarget1 != null) {
-                        transportitemsbetweencontainers$transportitemtarget = transportitemsbetweencontainers$transportitemtarget1;
-                        d0 = d1;
-                    }
+
+            for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+                if (!(blockEntity instanceof ChestBlockEntity)) {
+                    continue;
+                }
+
+                double distance = blockEntity.getBlockPos().distToCenterSqr(mob.position());
+                if (distance >= nearestDistance) {
+                    continue;
+                }
+
+                TransportItemsBetweenContainers.TransportItemTarget candidate =
+                    this.isTargetValidToPick(mob, level, blockEntity, visited, unreachable, searchArea);
+                if (candidate != null) {
+                    nearest = candidate;
+                    nearestDistance = distance;
                 }
             }
         }
 
-        return transportitemsbetweencontainers$transportitemtarget == null
-            ? Optional.empty()
-            : Optional.of(transportitemsbetweencontainers$transportitemtarget);
+        return Optional.ofNullable(nearest);
     }
 
     @Nullable
@@ -680,23 +669,11 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
 
         @Nullable
         private static Container getBlockEntityContainer(BlockEntity blockEntity, BlockState state, Level level, BlockPos pos) {
-            // Handle vanilla ChestBlock (supports double chests)
-            if (state.getBlock() instanceof ChestBlock chestblock) {
-                return ChestBlock.getContainer(chestblock, state, level, pos, false);
+            if (state.getBlock() instanceof ChestBlock chestBlock) {
+                return ChestBlock.getContainer(chestBlock, state, level, pos, false);
             }
-            
-            // Handle vanilla Container interface (Barrels, etc.)
-            if (blockEntity instanceof Container container) {
-                return container;
-            }
-            
-            // Handle mod containers (SophisticatedStorage, etc.) via ModCompat
-            Container modContainer = ModCompat.getModContainer(blockEntity, level, pos);
-            if (modContainer != null) {
-                return modContainer;
-            }
-            
-            return null;
+
+            return blockEntity instanceof Container container ? container : null;
         }
     }
 }
