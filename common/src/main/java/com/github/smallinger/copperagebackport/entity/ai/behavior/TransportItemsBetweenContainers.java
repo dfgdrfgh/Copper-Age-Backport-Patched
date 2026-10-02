@@ -173,7 +173,7 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
 
     protected void onTravelToTarget(TransportItemsBetweenContainers.TransportItemTarget target, Level level, PathfinderMob mob) {
         if (this.isWithinTargetDistance(3.0, target, level, mob, this.getCenterPos(mob))
-            && this.isAnotherMobInteractingWithTarget(target, level)) {
+            && this.isAnotherMobInteractingWithTarget(target, level, mob)) {
             this.startQueuing(mob);
         } else if (this.isWithinTargetDistance(getInteractionRange(mob), target, level, mob, this.getCenterPos(mob))) {
             this.startOnReachedTargetInteraction(target, mob);
