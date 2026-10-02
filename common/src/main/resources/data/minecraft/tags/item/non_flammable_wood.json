@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "minecraft:crimson_shelf",
-    "minecraft:warped_shelf"
+    "minecraft:warped_shelf",
+    "minecraft:crimson_shelf"
   ]
 }
