@@ -46,6 +46,7 @@ public class CopperGolemStatueBlockEntity extends BlockEntity {
             golem.yBodyRot = golem.getYRot();
             golem.setCustomName(this.customName);
             golem.setWeatherState(((CopperGolemStatueBlock) state.getBlock()).getWeatheringState());
+            golem.playSpawnSound();
             return golem;
         }
         return null;

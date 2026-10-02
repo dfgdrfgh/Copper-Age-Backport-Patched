@@ -240,7 +240,9 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        this.nextWeatheringTick = compound.getLong("next_weather_age");
+        this.nextWeatheringTick = compound.contains("next_weather_age")
+            ? compound.getLong("next_weather_age")
+            : UNSET_WEATHERING_TICK;
         if (compound.contains("weather_state")) {
             int weatherId = compound.getInt("weather_state");
             WeatheringCopper.WeatherState[] states = WeatheringCopper.WeatherState.values();

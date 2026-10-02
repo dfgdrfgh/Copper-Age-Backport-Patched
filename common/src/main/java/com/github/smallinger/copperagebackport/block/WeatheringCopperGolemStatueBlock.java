@@ -146,14 +146,10 @@ public class WeatheringCopperGolemStatueBlock extends CopperGolemStatueBlock imp
                 
                 if (level.getBlockEntity(pos) instanceof CopperGolemStatueBlockEntity statueEntity) {
                     CopperGolemEntity golem = statueEntity.removeStatue(state, serverLevel);
+                    stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
                     if (golem != null) {
-                        level.removeBlock(pos, false);
                         serverLevel.addFreshEntity(golem);
-                        level.playSound(null, pos, ModSounds.COPPER_STATUE_BREAK.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
-                        // TODO: Maybe change particle effect - currently using SCRAPE (3005)
-                        level.levelEvent(null, 3005, pos, 0);
-                        level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
-                        stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
+                        level.removeBlock(pos, false);
                         return ItemInteractionResult.SUCCESS;
                     }
                 }
