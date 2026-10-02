@@ -135,41 +135,42 @@ public abstract class RegistryHelper {
         VANILLA_BACKPORT_IDS.add("shelf"); // Block entity for shelves
         VANILLA_BACKPORT_IDS.add("copper_golem_statue"); // Block entity for golem statues
         
-        // Sound Events - Copper Golem
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.death.unaffected");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.hurt.unaffected");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.step.unaffected");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.head_spin.unaffected");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.death.exposed");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.hurt.exposed");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.step.exposed");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.head_spin.exposed");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.death.weathered");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.hurt.weathered");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.step.weathered");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.head_spin.weathered");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.death.oxidized");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.hurt.oxidized");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.step.oxidized");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.head_spin.oxidized");
+        // Sound Events - Copper Golem (finalized 1.21.9 IDs)
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem.death");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem.hurt");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem.step");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem.spin");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_weathered.death");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_weathered.hurt");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_weathered.step");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_weathered.spin");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_oxidized.death");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_oxidized.hurt");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_oxidized.step");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_oxidized.spin");
         VANILLA_BACKPORT_IDS.add("entity.copper_golem.spawn");
-        VANILLA_BACKPORT_IDS.add("entity.copper_golem.become_statue");
+        VANILLA_BACKPORT_IDS.add("entity.copper_golem_become_statue");
         VANILLA_BACKPORT_IDS.add("entity.copper_golem.shear");
         VANILLA_BACKPORT_IDS.add("entity.copper_golem.item_drop");
         VANILLA_BACKPORT_IDS.add("entity.copper_golem.item_no_drop");
         VANILLA_BACKPORT_IDS.add("entity.copper_golem.no_item_get");
         VANILLA_BACKPORT_IDS.add("entity.copper_golem.no_item_no_get");
-        
+
         // Sound Events - Copper Chest
         VANILLA_BACKPORT_IDS.add("block.copper_chest.close");
         VANILLA_BACKPORT_IDS.add("block.copper_chest.open");
-        
-        // Sound Events - Copper Statue
-        VANILLA_BACKPORT_IDS.add("block.copper_statue.break");
-        VANILLA_BACKPORT_IDS.add("block.copper_statue.place");
-        VANILLA_BACKPORT_IDS.add("block.copper_statue.hit");
-        VANILLA_BACKPORT_IDS.add("block.copper_statue.become_statue");
-        
+        VANILLA_BACKPORT_IDS.add("block.copper_chest_weathered.close");
+        VANILLA_BACKPORT_IDS.add("block.copper_chest_weathered.open");
+        VANILLA_BACKPORT_IDS.add("block.copper_chest_oxidized.close");
+        VANILLA_BACKPORT_IDS.add("block.copper_chest_oxidized.open");
+
+        // Sound Events - Copper Golem Statue
+        VANILLA_BACKPORT_IDS.add("block.copper_golem_statue.break");
+        VANILLA_BACKPORT_IDS.add("block.copper_golem_statue.step");
+        VANILLA_BACKPORT_IDS.add("block.copper_golem_statue.place");
+        VANILLA_BACKPORT_IDS.add("block.copper_golem_statue.hit");
+        VANILLA_BACKPORT_IDS.add("block.copper_golem_statue.fall");
+
         // Sound Events - Shelf
         VANILLA_BACKPORT_IDS.add("block.shelf.activate");
         VANILLA_BACKPORT_IDS.add("block.shelf.deactivate");
@@ -177,10 +178,15 @@ public abstract class RegistryHelper {
         VANILLA_BACKPORT_IDS.add("block.shelf.take_item");
         VANILLA_BACKPORT_IDS.add("block.shelf.single_swap");
         VANILLA_BACKPORT_IDS.add("block.shelf.multi_swap");
-        
+        VANILLA_BACKPORT_IDS.add("block.shelf.break");
+        VANILLA_BACKPORT_IDS.add("block.shelf.step");
+        VANILLA_BACKPORT_IDS.add("block.shelf.place");
+        VANILLA_BACKPORT_IDS.add("block.shelf.hit");
+        VANILLA_BACKPORT_IDS.add("block.shelf.fall");
+
         // Sound Events - Armor
         VANILLA_BACKPORT_IDS.add("item.armor.equip_copper");
-        
+
         // Sound Events - Weather (End Flash)
         VANILLA_BACKPORT_IDS.add("weather.end_flash");
         
