@@ -9,7 +9,8 @@
     "CarvedPumpkinBlockMixin",
     "LightningRodBlockMixin",
     "OfferFlowerGoalMixin",
-    "PlayerDataRemapMixin"
+    "PlayerDataRemapMixin",
+    "LootPoolAccessor"
   ],
   "client": [
     "client.ClientLevelMixin",

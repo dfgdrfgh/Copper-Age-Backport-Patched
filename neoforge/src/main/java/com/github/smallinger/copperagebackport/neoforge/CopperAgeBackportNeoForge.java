@@ -56,8 +56,8 @@ public class CopperAgeBackportNeoForge {
 
         NeoForge.EVENT_BUS.register(this);
         
-        // Register loot modifiers
-        com.github.smallinger.copperagebackport.neoforge.loot.NeoForgeLootTableModifier.register(modEventBus);
+        // Inject Copper Horse Armor into vanilla's existing chest loot pools.
+        com.github.smallinger.copperagebackport.neoforge.loot.NeoForgeLootTableInjector.register();
 
         CommonClass.init();
     }
