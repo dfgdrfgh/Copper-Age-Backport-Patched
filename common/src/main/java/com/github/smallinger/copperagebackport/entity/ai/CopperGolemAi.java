@@ -6,6 +6,7 @@ import com.github.smallinger.copperagebackport.ModMemoryTypes;
 import com.github.smallinger.copperagebackport.ModSounds;
 import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
+import com.github.smallinger.copperagebackport.block.entity.CopperChestBlockEntity;
 import com.github.smallinger.copperagebackport.entity.CopperGolemState;
 import com.github.smallinger.copperagebackport.entity.ai.behavior.InteractWithDoor;
 import com.github.smallinger.copperagebackport.entity.ai.behavior.TransportItemsBetweenContainers;
@@ -31,11 +32,14 @@ import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.phys.AABB;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
 /**
  * AI Brain System für Copper Golem
@@ -276,11 +280,29 @@ public class CopperGolemAi {
      * Prüft ob ein anderer Mob bereits mit dem Target interagiert
      * Wenn ja, sollte der Golem in eine Warteschlange gehen
      */
-    private static Predicate<TransportItemsBetweenContainers.TransportItemTarget> shouldQueueForTarget() {
-        return target -> {
-            // Queue wenn ein anderer Golem bereits mit der Kiste interagiert
-            // Einfache Implementation: kein Queueing da getEntitiesWithContainerOpen() nicht verfügbar in 1.21.1
-            return false;
+    private static BiPredicate<TransportItemsBetweenContainers.TransportItemTarget, PathfinderMob> shouldQueueForTarget() {
+        return (target, mob) -> {
+            Level level = mob.level();
+
+            // Player-opened chests count as viewers, matching the modern vanilla storage predicate.
+            if (target.blockEntity() instanceof CopperChestBlockEntity copperChest) {
+                if (copperChest.isChestOpen()) {
+                    return true;
+                }
+            } else if (target.blockEntity() instanceof ChestBlockEntity
+                    && ChestBlockEntity.getOpenCount(level, target.pos()) > 0) {
+                return true;
+            }
+
+            // 1.21.1's ChestBlockEntity opener counter only tracks players, so also
+            // account for another backported Copper Golem currently interacting
+            // with this chest (or the connected half of a double chest).
+            AABB interactionArea = new AABB(target.pos()).inflate(3.0);
+            return !level.getEntitiesOfClass(
+                CopperGolemEntity.class,
+                interactionArea,
+                other -> other != mob && other.isViewingContainerAt(target.pos())
+            ).isEmpty();
         };
     }
     

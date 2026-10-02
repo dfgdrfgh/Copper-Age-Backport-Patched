@@ -195,23 +195,26 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
     // Matches vanilla CopperGolem (1.21.10) behavior:
     // Supports double chests by checking both the opened chest position AND the connected chest position.
     // This prevents issues where opening one half of a double chest wouldn't properly track the other half.
-    @Override
-    public boolean hasContainerOpen(ContainerOpenersCounter openCounter, BlockPos pos) {
+    public boolean isViewingContainerAt(BlockPos pos) {
         if (this.openedChestPos == null) {
             return false;
         }
-        // Check if it's the same position or a connected double chest
         if (this.openedChestPos.equals(pos)) {
             return true;
         }
-        // Double chest support
-        net.minecraft.world.level.block.state.BlockState blockstate = this.level().getBlockState(this.openedChestPos);
+
+        BlockState blockstate = this.level().getBlockState(this.openedChestPos);
         if (blockstate.getBlock() instanceof net.minecraft.world.level.block.ChestBlock
                 && blockstate.getValue(net.minecraft.world.level.block.ChestBlock.TYPE) != net.minecraft.world.level.block.state.properties.ChestType.SINGLE) {
             net.minecraft.core.Direction connectedDirection = net.minecraft.world.level.block.ChestBlock.getConnectedDirection(blockstate);
             return this.openedChestPos.relative(connectedDirection).equals(pos);
         }
         return false;
+    }
+
+    @Override
+    public boolean hasContainerOpen(ContainerOpenersCounter openCounter, BlockPos pos) {
+        return this.isViewingContainerAt(pos);
     }
 
     @Override

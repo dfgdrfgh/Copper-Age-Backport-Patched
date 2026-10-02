@@ -12,11 +12,13 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -29,6 +31,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BarrelBlockEntity;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -60,7 +63,7 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     private final int verticalSearchDistance;
     private final Predicate<BlockState> sourceBlockType;
     private final Predicate<BlockState> destinationBlockType;
-    private final Predicate<TransportItemsBetweenContainers.TransportItemTarget> shouldQueueForTarget;
+    private final BiPredicate<TransportItemsBetweenContainers.TransportItemTarget, PathfinderMob> shouldQueueForTarget;
     private final Consumer<PathfinderMob> onStartTravelling;
     private final Map<TransportItemsBetweenContainers.ContainerInteractionState, TransportItemsBetweenContainers.OnTargetReachedInteraction> onTargetInteractionActions;
     @Nullable
@@ -78,7 +81,7 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
         int verticalSearchDistance,
         Map<TransportItemsBetweenContainers.ContainerInteractionState, TransportItemsBetweenContainers.OnTargetReachedInteraction> onTargetInteractionActions,
         Consumer<PathfinderMob> onStartTravelling,
-        Predicate<TransportItemsBetweenContainers.TransportItemTarget> shouldQueueForTarget
+        BiPredicate<TransportItemsBetweenContainers.TransportItemTarget, PathfinderMob> shouldQueueForTarget
     ) {
         super(
             ImmutableMap.of(
@@ -163,7 +166,7 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     }
 
     private void onQueuingForTarget(TransportItemsBetweenContainers.TransportItemTarget target, Level level, PathfinderMob mob) {
-        if (!this.isAnotherMobInteractingWithTarget(target, level)) {
+        if (!this.isAnotherMobInteractingWithTarget(target, level, mob)) {
             this.resumeTravelling(mob);
         }
     }
@@ -355,8 +358,10 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     }
 
     private boolean isContainerLocked(TransportItemsBetweenContainers.TransportItemTarget target) {
-        // 1.20.1 BaseContainerBlockEntity doesn't have isLocked()
-        return false;
+        // 1.21.1 does not expose BaseContainerBlockEntity#isLocked(), but its
+        // collected data components include LOCK exactly when a lock is present.
+        return target.blockEntity instanceof BaseContainerBlockEntity baseContainer
+            && baseContainer.collectComponents().has(DataComponents.LOCK);
     }
 
     private boolean hasValidTarget(Level level, PathfinderMob mob) {
@@ -520,8 +525,8 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
             .anyMatch(hitResult -> hitResult.getType() == HitResult.Type.BLOCK && hitResult.getBlockPos().equals(target.pos));
     }
 
-    private boolean isAnotherMobInteractingWithTarget(TransportItemsBetweenContainers.TransportItemTarget target, Level level) {
-        return this.getConnectedTargets(target, level).anyMatch(this.shouldQueueForTarget);
+    private boolean isAnotherMobInteractingWithTarget(TransportItemsBetweenContainers.TransportItemTarget target, Level level, PathfinderMob mob) {
+        return this.getConnectedTargets(target, level).anyMatch(connected -> this.shouldQueueForTarget.test(connected, mob));
     }
 
     private static boolean isPickingUpItems(PathfinderMob mob) {
