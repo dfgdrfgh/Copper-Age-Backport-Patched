@@ -14,6 +14,7 @@ import com.github.smallinger.copperagebackport.registry.ModParticles;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -29,12 +30,23 @@ public class CopperAgeBackportFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         registerParticles();
+        registerItemColors();
         registerModelLayers();
         registerRenderers();
         register3DItemRenderers();
         registerBlockRenderLayers();
     }
     
+    private void registerItemColors() {
+        // The modern Copper Golem spawn egg is a complete pre-colored sprite.
+        // Returning opaque white prevents SpawnEggItem's normal color provider
+        // from multiplying/tinting the pixels and making the icon too dark.
+        ColorProviderRegistry.ITEM.register(
+            (stack, tintIndex) -> -1,
+            ModItems.COPPER_GOLEM_SPAWN_EGG.get()
+        );
+    }
+
     private void registerParticles() {
         ParticleFactoryRegistry.getInstance().register(ModParticles.COPPER_FIRE_FLAME.get(), FlameParticle.Provider::new);
     }
