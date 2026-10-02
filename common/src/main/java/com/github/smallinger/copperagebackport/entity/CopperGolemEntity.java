@@ -272,12 +272,14 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
                     WeatheringCopper.WeatherState nextState = getNextWeatherState(weatherState);
                     boolean willBeOxidized = nextState == WeatheringCopper.WeatherState.OXIDIZED;
                     this.setWeatherState(nextState);
+                    isOxidized = willBeOxidized;
                     this.nextWeatheringTick = willBeOxidized ? 0L : 
                         this.nextWeatheringTick + random.nextIntBetweenInclusive(
                             MIN_OXIDATION_AGE_TICKS, MAX_OXIDATION_AGE_TICKS);
                 }
                 
-                // Check if golem should turn into statue when fully oxidized
+                // Finalized Copper Age behavior allows the statue roll on the same
+                // tick that the golem reaches the fully oxidized state.
                 if (isOxidized && canTurnToStatue(level)) {
                     turnToStatue(level);
                 }
