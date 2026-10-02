@@ -4,7 +4,6 @@ import com.github.smallinger.copperagebackport.ModSounds;
 import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.block.CopperGolemStatueBlock;
 import com.github.smallinger.copperagebackport.block.entity.CopperGolemStatueBlockEntity;
-import com.github.smallinger.copperagebackport.config.CommonConfig;
 import com.github.smallinger.copperagebackport.entity.ai.CopperGolemAi;
 import com.github.smallinger.copperagebackport.entity.ai.navigation.CopperGolemNavigation;
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
@@ -49,7 +48,8 @@ import org.jetbrains.annotations.Nullable;
 public class CopperGolemEntity extends AbstractGolem implements Shearable, ContainerUser {
     private static final long IGNORE_WEATHERING_TICK = -2L;
     private static final long UNSET_WEATHERING_TICK = -1L;
-    // Weathering tick values are now configurable via CommonConfig
+    private static final int MIN_OXIDATION_AGE_TICKS = 504000;
+    private static final int MAX_OXIDATION_AGE_TICKS = 552000;
     private static final int SPIN_ANIMATION_MIN_COOLDOWN = 200;
     private static final int SPIN_ANIMATION_MAX_COOLDOWN = 240;
     private static final float TURN_TO_STATUE_CHANCE = 0.0058F; // 0.58% chance per tick when oxidized
@@ -121,8 +121,7 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
         return Mob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 12.0)
             .add(Attributes.MOVEMENT_SPEED, 0.2F)
-            .add(Attributes.STEP_HEIGHT, 1.0)
-            .add(Attributes.ATTACK_DAMAGE, 1.0);  // Required for item pickup evaluation
+            .add(Attributes.STEP_HEIGHT, 1.0);
     }
 
     // Brain-based AI statt Goal-based AI
@@ -267,7 +266,7 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
         if (this.nextWeatheringTick != IGNORE_WEATHERING_TICK) {
             if (this.nextWeatheringTick == UNSET_WEATHERING_TICK) {
                 this.nextWeatheringTick = dayTime + random.nextIntBetweenInclusive(
-                    CommonConfig.weatheringTickFrom(), CommonConfig.weatheringTickTo());
+                    MIN_OXIDATION_AGE_TICKS, MAX_OXIDATION_AGE_TICKS);
             } else {
                 WeatheringCopper.WeatherState weatherState = this.getWeatherState();
                 boolean isOxidized = weatherState == WeatheringCopper.WeatherState.OXIDIZED;
@@ -278,7 +277,7 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
                     this.setWeatherState(nextState);
                     this.nextWeatheringTick = willBeOxidized ? 0L : 
                         this.nextWeatheringTick + random.nextIntBetweenInclusive(
-                            CommonConfig.weatheringTickFrom(), CommonConfig.weatheringTickTo());
+                            MIN_OXIDATION_AGE_TICKS, MAX_OXIDATION_AGE_TICKS);
                 }
                 
                 // Check if golem should turn into statue when fully oxidized

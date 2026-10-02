@@ -1,11 +1,11 @@
 package com.github.smallinger.copperagebackport.event;
 
-import com.github.smallinger.copperagebackport.ModMemoryTypes;
 import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.block.CopperChestBlock;
 import com.github.smallinger.copperagebackport.config.CommonConfig;
 import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
 import com.github.smallinger.copperagebackport.registry.ModEntities;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 /**
- * Shared vanilla-style Copper Golem construction logic.
+ * Shared Copper Golem construction logic matching the vanilla Copper Age pattern.
  */
 public final class CopperGolemSpawnLogic {
 
@@ -49,49 +49,63 @@ public final class CopperGolemSpawnLogic {
         return state.is(Blocks.CARVED_PUMPKIN) || state.is(Blocks.JACK_O_LANTERN);
     }
 
-    private static void trySpawnCopperGolem(ServerLevel level, BlockPos pumpkinPos, BlockState pumpkinState, Direction direction) {
-        BlockPos copperPos = pumpkinPos.below();
-        BlockState copperState = level.getBlockState(copperPos);
+    private static void trySpawnCopperGolem(ServerLevel level, BlockPos pumpkinPos, BlockState pumpkinState, Direction chestFacing) {
+        BlockPos copperPos = null;
+        BlockState copperState = null;
 
-        if (!copperState.is(ModTags.Blocks.COPPER)) {
+        // Vanilla searches the two-block pattern in every orientation, so the
+        // copper block may be below, above, or on any horizontal side.
+        for (Direction bodyDirection : Direction.values()) {
+            BlockPos candidatePos = pumpkinPos.relative(bodyDirection);
+            BlockState candidateState = level.getBlockState(candidatePos);
+            if (candidateState.is(ModTags.Blocks.COPPER)) {
+                copperPos = candidatePos;
+                copperState = candidateState;
+                break;
+            }
+        }
+
+        if (copperPos == null || copperState == null) {
             return;
         }
 
         level.levelEvent(2001, pumpkinPos, Block.getId(pumpkinState));
         level.levelEvent(2001, copperPos, Block.getId(copperState));
 
+        // Vanilla clears the complete pattern before spawning the entity.
         level.setBlock(pumpkinPos, Blocks.AIR.defaultBlockState(), 2);
-
-        BlockState chestState = CopperChestBlock.getFromCopperBlock(copperState.getBlock(), direction, level, copperPos);
-        level.setBlock(copperPos, chestState, 2);
+        level.setBlock(copperPos, Blocks.AIR.defaultBlockState(), 2);
 
         CopperGolemEntity copperGolem = ModEntities.COPPER_GOLEM.get().create(level);
         if (copperGolem == null) {
+            // Restore the structure if entity creation unexpectedly fails.
+            level.setBlock(pumpkinPos, pumpkinState, 2);
+            level.setBlock(copperPos, copperState, 2);
             return;
         }
 
-        float yaw = direction.toYRot();
         copperGolem.moveTo(
-            copperPos.getX() + 0.5,
-            copperPos.getY() + 1.0,
-            copperPos.getZ() + 0.5,
-            yaw,
+            pumpkinPos.getX() + 0.5,
+            pumpkinPos.getY() + 0.05,
+            pumpkinPos.getZ() + 0.5,
+            0.0F,
             0.0F
         );
-        copperGolem.setYRot(yaw);
-        copperGolem.yRotO = yaw;
-        copperGolem.setYBodyRot(yaw);
-        copperGolem.yBodyRotO = yaw;
-        copperGolem.setYHeadRot(yaw);
-        copperGolem.yHeadRotO = yaw;
-
         copperGolem.spawn(getWeatherStateFromBlock(copperState.getBlock()));
-        copperGolem.getBrain().setMemory(ModMemoryTypes.TRANSPORT_ITEMS_COOLDOWN_TICKS.get(), 140);
-        level.addFreshEntity(copperGolem);
 
         for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, copperGolem.getBoundingBox().inflate(5.0))) {
-            // Hook retained for vanilla-equivalent advancement integration.
+            CriteriaTriggers.SUMMONED_ENTITY.trigger(player, copperGolem);
         }
+
+        level.addFreshEntity(copperGolem);
+
+        BlockState chestState = CopperChestBlock.getFromCopperBlock(
+            copperState.getBlock(),
+            chestFacing,
+            level,
+            copperPos
+        );
+        level.setBlock(copperPos, chestState, 2);
 
         level.updateNeighborsAt(copperPos, chestState.getBlock());
         level.updateNeighborsAt(pumpkinPos, Blocks.AIR);

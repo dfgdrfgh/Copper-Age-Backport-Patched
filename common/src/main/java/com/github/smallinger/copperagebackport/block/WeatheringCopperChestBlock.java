@@ -239,7 +239,7 @@ public class WeatheringCopperChestBlock extends CopperChestBlock implements Weat
         }
         
         Optional<Block> nextBlock = getNextBlock(state.getBlock());
-        if (!nextBlock.isPresent() || random.nextFloat() >= WeatheringHelper.OXIDATION_CHANCE) {
+        if (nextBlock.isEmpty() || !WeatheringHelper.shouldWeather(state, level, pos, random)) {
             return;
         }
         

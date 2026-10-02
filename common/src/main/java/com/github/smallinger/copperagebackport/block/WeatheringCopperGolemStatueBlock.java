@@ -92,18 +92,6 @@ public class WeatheringCopperGolemStatueBlock extends CopperGolemStatueBlock imp
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                              Player player, InteractionHand hand, BlockHitResult hitResult) {
-        // Empty hand interaction - change pose
-        if (stack.isEmpty()) {
-            if (!level.isClientSide()) {
-                Pose currentPose = state.getValue(POSE);
-                Pose nextPose = currentPose.getNextPose();
-                level.setBlock(pos, state.setValue(POSE, nextPose), Block.UPDATE_ALL);
-                level.playSound(null, pos, ModSounds.COPPER_STATUE_HIT.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-            }
-            return ItemInteractionResult.SUCCESS;
-        }
-        
         // Honeycomb interaction - wax the statue
         if (stack.is(Items.HONEYCOMB)) {
             Optional<Block> waxedBlock = getWaxedBlock(state.getBlock());
@@ -172,6 +160,18 @@ public class WeatheringCopperGolemStatueBlock extends CopperGolemStatueBlock imp
             }
         }
         
+        // Vanilla cycles the pose for every non-axe, non-honeycomb interaction.
+        if (!stack.is(ItemTags.AXES) && !stack.is(Items.HONEYCOMB)) {
+            if (!level.isClientSide()) {
+                Pose nextPose = state.getValue(POSE).getNextPose();
+                level.setBlock(pos, state.setValue(POSE, nextPose), Block.UPDATE_ALL);
+                level.playSound(null, pos, ModSounds.COPPER_GOLEM_BECOME_STATUE.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+                level.updateNeighbourForOutputSignal(pos, this);
+            }
+            return ItemInteractionResult.SUCCESS;
+        }
+
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
