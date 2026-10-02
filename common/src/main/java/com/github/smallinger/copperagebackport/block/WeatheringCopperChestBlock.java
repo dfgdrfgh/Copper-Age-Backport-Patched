@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -76,6 +75,10 @@ public class WeatheringCopperChestBlock extends CopperChestBlock implements Weat
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
+        BlockPos connectedEffectPos = state.getValue(TYPE) == ChestType.SINGLE
+            ? null
+            : pos.relative(ChestBlock.getConnectedDirection(state));
+
         if (stack.is(Items.HONEYCOMB)) {
             Block waxedBlock = null;
             if (this == ModBlocks.COPPER_CHEST.get()) {
@@ -89,71 +92,41 @@ public class WeatheringCopperChestBlock extends CopperChestBlock implements Weat
             }
 
             if (waxedBlock != null) {
-                BlockState newState = waxedBlock.withPropertiesOf(state);
-                if (!level.isClientSide) {
-                    level.setBlock(pos, newState, 11);
-                    level.gameEvent(
-                        net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE,
-                        pos,
-                        net.minecraft.world.level.gameevent.GameEvent.Context.of(player, newState)
-                    );
-                    stack.shrink(1);
-                }
-
-                level.levelEvent(player, 3003, pos, 0);
-                mirrorDoubleChestEffect(level, player, state, pos, 3003);
+                CopperInteractionHelper.wax(
+                    level,
+                    pos,
+                    waxedBlock.withPropertiesOf(state),
+                    player,
+                    stack,
+                    connectedEffectPos
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
 
         if (stack.is(ItemTags.AXES)) {
+            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+
             Optional<Block> previousBlock = getPreviousBlock(state.getBlock());
             if (previousBlock.isPresent()) {
-                BlockState newState = previousBlock.get().withPropertiesOf(state);
-
-                level.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                level.levelEvent(player, 3005, pos, 0);
-                mirrorDoubleChestEffect(level, player, state, pos, 3005);
-
-                if (!level.isClientSide) {
-                    level.setBlock(pos, newState, 11);
-                    level.gameEvent(
-                        net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE,
-                        pos,
-                        net.minecraft.world.level.gameevent.GameEvent.Context.of(player, newState)
-                    );
-                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-                }
-
+                CopperInteractionHelper.axeTransform(
+                    level,
+                    pos,
+                    previousBlock.get().withPropertiesOf(state),
+                    player,
+                    hand,
+                    stack,
+                    SoundEvents.AXE_SCRAPE,
+                    3005,
+                    connectedEffectPos
+                );
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
 
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-    }
-
-    private static void mirrorDoubleChestEffect(
-        Level level,
-        Player player,
-        BlockState state,
-        BlockPos pos,
-        int eventId
-    ) {
-        if (state.getValue(TYPE) == ChestType.SINGLE) {
-            return;
-        }
-
-        BlockPos connectedPos = pos.relative(ChestBlock.getConnectedDirection(state));
-        BlockState connectedState = level.getBlockState(connectedPos);
-        level.levelEvent(player, eventId, connectedPos, 0);
-
-        if (!level.isClientSide) {
-            level.gameEvent(
-                net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE,
-                connectedPos,
-                net.minecraft.world.level.gameevent.GameEvent.Context.of(player, connectedState)
-            );
-        }
     }
 
     @Override
