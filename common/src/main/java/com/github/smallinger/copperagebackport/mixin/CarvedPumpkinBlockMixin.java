@@ -2,7 +2,6 @@ package com.github.smallinger.copperagebackport.mixin;
 
 import com.github.smallinger.copperagebackport.event.CopperGolemSpawnLogic;
 import com.github.smallinger.copperagebackport.ModTags;
-import com.github.smallinger.copperagebackport.config.CommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -23,7 +22,6 @@ public abstract class CarvedPumpkinBlockMixin {
         CallbackInfoReturnable<Boolean> cir
     ) {
         if (!cir.getReturnValue()
-            && CommonConfig.golemBuildSpawning()
             && level.getBlockState(pos.below()).is(ModTags.Blocks.COPPER)) {
             cir.setReturnValue(true);
         }
