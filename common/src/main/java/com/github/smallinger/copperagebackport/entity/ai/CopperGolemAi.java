@@ -296,7 +296,7 @@ public class CopperGolemAi {
         }
 
         // Vanilla Copper Golems deposit only into normal and trapped chests.
-        return state.getBlock() instanceof ChestBlock;
+        return state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST);
     }
 
     /**
