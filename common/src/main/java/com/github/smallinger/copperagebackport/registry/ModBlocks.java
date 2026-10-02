@@ -669,9 +669,7 @@ public class ModBlocks {
             .mapColor(mapColor)
             .instrument(NoteBlockInstrument.BASS)
             .strength(2.0F, 3.0F)
-            // Finalized vanilla has a dedicated SHELF sound type; the current
-            // backport assets do not yet contain its break/step/place/hit/fall files.
-            .sound(SoundType.WOOD)
+            .sound(ModSoundTypes.SHELF)
             .ignitedByLava();
     }
 
