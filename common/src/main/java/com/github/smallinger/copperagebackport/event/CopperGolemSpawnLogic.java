@@ -2,7 +2,6 @@ package com.github.smallinger.copperagebackport.event;
 
 import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.block.CopperChestBlock;
-import com.github.smallinger.copperagebackport.config.CommonConfig;
 import com.github.smallinger.copperagebackport.entity.CopperGolemEntity;
 import com.github.smallinger.copperagebackport.registry.ModEntities;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -26,7 +25,7 @@ public final class CopperGolemSpawnLogic {
     }
 
     public static void handleBlockPlaced(Level level, BlockPos pos, BlockState placedState, Direction fallbackDirection) {
-        if (!(level instanceof ServerLevel serverLevel) || !CommonConfig.golemBuildSpawning()) {
+        if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
         if (!isGolemPumpkin(placedState)) {
