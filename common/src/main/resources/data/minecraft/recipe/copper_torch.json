@@ -1,27 +1,29 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "category": "misc",
-    "key": {
-        "C": { "tag": "c:nuggets/copper" },
-        "X": [
-            {
-                "item": "minecraft:coal"
-            },
-            {
-                "item": "minecraft:charcoal"
-            }
-        ],
-        "#": {
-            "item": "minecraft:stick"
-        }
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "C",
+    "X",
+    "#"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_nugget"
     },
-    "pattern": [
-        "C",
-        "X",
-        "#"
+    "X": [
+      {
+        "item": "minecraft:coal"
+      },
+      {
+        "item": "minecraft:charcoal"
+      }
     ],
-    "result": {
-        "id": "minecraft:copper_torch",
-        "count": 4
+    "#": {
+      "item": "minecraft:stick"
     }
+  },
+  "result": {
+    "id": "minecraft:copper_torch",
+    "count": 4
+  }
 }

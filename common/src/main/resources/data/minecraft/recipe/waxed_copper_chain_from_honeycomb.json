@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
+  "category": "building",
+  "group": "waxed_copper_chain",
   "ingredients": [
     {
       "item": "minecraft:copper_chain"
@@ -10,7 +11,7 @@
     }
   ],
   "result": {
-    "count": 1,
-    "id": "minecraft:waxed_copper_chain"
+    "id": "minecraft:waxed_copper_chain",
+    "count": 1
   }
 }

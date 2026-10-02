@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
+  "category": "building",
+  "group": "waxed_oxidized_copper_lantern",
   "ingredients": [
     {
       "item": "minecraft:oxidized_copper_lantern"

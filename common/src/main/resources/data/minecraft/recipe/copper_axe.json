@@ -2,16 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "CC",
-    "CS",
-    " S"
+    "XX",
+    "X#",
+    " #"
   ],
   "key": {
-    "C": {
-      "item": "minecraft:copper_ingot"
-    },
-    "S": {
+    "#": {
       "item": "minecraft:stick"
+    },
+    "X": {
+      "tag": "minecraft:copper_tool_materials"
     }
   },
   "result": {

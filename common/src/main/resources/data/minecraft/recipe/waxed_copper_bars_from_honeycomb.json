@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
+  "category": "building",
+  "group": "waxed_copper_bars",
   "ingredients": [
     {
       "item": "minecraft:copper_bars"
@@ -10,7 +11,7 @@
     }
   ],
   "result": {
-    "count": 1,
-    "id": "minecraft:waxed_copper_bars"
+    "id": "minecraft:waxed_copper_bars",
+    "count": 1
   }
 }

@@ -1,19 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "misc",
-  "key": {
-    "I": {
-      "item": "minecraft:copper_ingot"
-    },
-    "N": { "tag": "c:nuggets/copper" }
-  },
   "pattern": [
     "N",
     "I",
     "N"
   ],
+  "key": {
+    "I": {
+      "item": "minecraft:copper_ingot"
+    },
+    "N": {
+      "item": "minecraft:copper_nugget"
+    }
+  },
   "result": {
-    "count": 1,
-    "id": "minecraft:copper_chain"
+    "id": "minecraft:copper_chain",
+    "count": 1
   }
 }

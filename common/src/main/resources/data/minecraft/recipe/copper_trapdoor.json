@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "building",
+  "category": "redstone",
   "pattern": [
     "##",
     "##"
@@ -12,6 +12,6 @@
   },
   "result": {
     "id": "minecraft:copper_trapdoor",
-    "count": 6
+    "count": 1
   }
 }

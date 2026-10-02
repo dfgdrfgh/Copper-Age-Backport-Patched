@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
+  "category": "building",
+  "group": "waxed_weathered_copper_chest",
   "ingredients": [
     {
       "item": "minecraft:weathered_copper_chest"
