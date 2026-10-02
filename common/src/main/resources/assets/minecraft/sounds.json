@@ -180,13 +180,7 @@
     "sounds": [
       "minecraft:block/copper_chest/copper_chest_close1",
       "minecraft:block/copper_chest/copper_chest_close2",
-      "minecraft:block/copper_chest/copper_chest_close3",
-      "minecraft:block/copper_chest/copper_chest_weathered_close1",
-      "minecraft:block/copper_chest/copper_chest_weathered_close2",
-      "minecraft:block/copper_chest/copper_chest_weathered_close3",
-      "minecraft:block/copper_chest/copper_chest_oxidized_close1",
-      "minecraft:block/copper_chest/copper_chest_oxidized_close2",
-      "minecraft:block/copper_chest/copper_chest_oxidized_close3"
+      "minecraft:block/copper_chest/copper_chest_close3"
     ]
   },
   "block.copper_chest.open": {
@@ -194,13 +188,7 @@
     "sounds": [
       "minecraft:block/copper_chest/copper_chest_open1",
       "minecraft:block/copper_chest/copper_chest_open2",
-      "minecraft:block/copper_chest/copper_chest_open3",
-      "minecraft:block/copper_chest/copper_chest_weathered_open1",
-      "minecraft:block/copper_chest/copper_chest_weathered_open2",
-      "minecraft:block/copper_chest/copper_chest_weathered_open3",
-      "minecraft:block/copper_chest/copper_chest_oxidized_open1",
-      "minecraft:block/copper_chest/copper_chest_oxidized_open2",
-      "minecraft:block/copper_chest/copper_chest_oxidized_open3"
+      "minecraft:block/copper_chest/copper_chest_open3"
     ]
   },
   "entity.copper_golem.item_drop": {
@@ -343,6 +331,38 @@
       "minecraft:ambient/weather/end_flash6",
       "minecraft:ambient/weather/end_flash7",
       "minecraft:ambient/weather/end_flash8"
+    ]
+  },
+  "block.copper_chest_weathered.close": {
+    "subtitle": "subtitles.block.copper_chest.close",
+    "sounds": [
+      "minecraft:block/copper_chest/copper_chest_weathered_close1",
+      "minecraft:block/copper_chest/copper_chest_weathered_close2",
+      "minecraft:block/copper_chest/copper_chest_weathered_close3"
+    ]
+  },
+  "block.copper_chest_weathered.open": {
+    "subtitle": "subtitles.block.copper_chest.open",
+    "sounds": [
+      "minecraft:block/copper_chest/copper_chest_weathered_open1",
+      "minecraft:block/copper_chest/copper_chest_weathered_open2",
+      "minecraft:block/copper_chest/copper_chest_weathered_open3"
+    ]
+  },
+  "block.copper_chest_oxidized.close": {
+    "subtitle": "subtitles.block.copper_chest.close",
+    "sounds": [
+      "minecraft:block/copper_chest/copper_chest_oxidized_close1",
+      "minecraft:block/copper_chest/copper_chest_oxidized_close2",
+      "minecraft:block/copper_chest/copper_chest_oxidized_close3"
+    ]
+  },
+  "block.copper_chest_oxidized.open": {
+    "subtitle": "subtitles.block.copper_chest.open",
+    "sounds": [
+      "minecraft:block/copper_chest/copper_chest_oxidized_open1",
+      "minecraft:block/copper_chest/copper_chest_oxidized_open2",
+      "minecraft:block/copper_chest/copper_chest_oxidized_open3"
     ]
   }
 }

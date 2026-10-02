@@ -60,8 +60,20 @@ public class CopperChestBlock extends ChestBlock {
     public CopperChestBlock(WeatheringCopper.WeatherState weatherState, BlockBehaviour.Properties properties) {
         super(properties, () -> ModBlockEntities.COPPER_CHEST_BLOCK_ENTITY.get());
         this.weatherState = weatherState;
-        this.openSound = ModSounds.COPPER_CHEST_OPEN.get();
-        this.closeSound = ModSounds.COPPER_CHEST_CLOSE.get();
+        switch (weatherState) {
+            case WEATHERED -> {
+                this.openSound = ModSounds.COPPER_CHEST_WEATHERED_OPEN.get();
+                this.closeSound = ModSounds.COPPER_CHEST_WEATHERED_CLOSE.get();
+            }
+            case OXIDIZED -> {
+                this.openSound = ModSounds.COPPER_CHEST_OXIDIZED_OPEN.get();
+                this.closeSound = ModSounds.COPPER_CHEST_OXIDIZED_CLOSE.get();
+            }
+            default -> {
+                this.openSound = ModSounds.COPPER_CHEST_OPEN.get();
+                this.closeSound = ModSounds.COPPER_CHEST_CLOSE.get();
+            }
+        }
     }
 
     @Override
@@ -71,6 +83,14 @@ public class CopperChestBlock extends ChestBlock {
 
     public WeatheringCopper.WeatherState getState() {
         return this.weatherState;
+    }
+
+    public SoundEvent getOpenSound() {
+        return this.openSound;
+    }
+
+    public SoundEvent getCloseSound() {
+        return this.closeSound;
     }
 
     @Override

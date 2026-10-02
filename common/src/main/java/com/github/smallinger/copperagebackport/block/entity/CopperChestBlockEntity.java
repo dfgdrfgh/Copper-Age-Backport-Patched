@@ -1,17 +1,21 @@
 package com.github.smallinger.copperagebackport.block.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 
-import com.github.smallinger.copperagebackport.ModSounds;
+import com.github.smallinger.copperagebackport.block.CopperChestBlock;
 import com.github.smallinger.copperagebackport.registry.ModBlockEntities;
 
 public class CopperChestBlockEntity extends ChestBlockEntity {
@@ -33,32 +37,12 @@ public class CopperChestBlockEntity extends ChestBlockEntity {
 
             @Override
             protected void openerCountChanged(Level level, BlockPos pos, BlockState state, int oldCount, int newCount) {
-                // Play sound only when first opening (oldCount == 0, newCount > 0)
-                // or last closing (newCount == 0, oldCount > 0)
-                if (oldCount == 0 && newCount > 0) {
-                    // Opening
-                    level.playSound(
-                        null,
-                        pos.getX() + 0.5,
-                        pos.getY() + 0.5,
-                        pos.getZ() + 0.5,
-                        ModSounds.COPPER_CHEST_OPEN.get(),
-                        SoundSource.BLOCKS,
-                        0.5f,
-                        level.random.nextFloat() * 0.1f + 0.9f
-                    );
-                } else if (newCount == 0 && oldCount > 0) {
-                    // Closing
-                    level.playSound(
-                        null,
-                        pos.getX() + 0.5,
-                        pos.getY() + 0.5,
-                        pos.getZ() + 0.5,
-                        ModSounds.COPPER_CHEST_CLOSE.get(),
-                        SoundSource.BLOCKS,
-                        0.5f,
-                        level.random.nextFloat() * 0.1f + 0.9f
-                    );
+                if (state.getBlock() instanceof CopperChestBlock chestBlock) {
+                    if (oldCount == 0 && newCount > 0) {
+                        playChestSound(level, pos, state, chestBlock.getOpenSound());
+                    } else if (newCount == 0 && oldCount > 0) {
+                        playChestSound(level, pos, state, chestBlock.getCloseSound());
+                    }
                 }
                 level.blockEvent(pos, state.getBlock(), 1, newCount);
             }
@@ -77,6 +61,35 @@ public class CopperChestBlockEntity extends ChestBlockEntity {
         };
     }
     
+    private static void playChestSound(Level level, BlockPos pos, BlockState state, SoundEvent sound) {
+        ChestType chestType = state.getValue(ChestBlock.TYPE);
+        // Vanilla plays one sound for a double chest: LEFT is silent, RIGHT offsets
+        // the sound to the center of the combined chest.
+        if (chestType == ChestType.LEFT) {
+            return;
+        }
+
+        double x = pos.getX() + 0.5;
+        double y = pos.getY() + 0.5;
+        double z = pos.getZ() + 0.5;
+        if (chestType == ChestType.RIGHT) {
+            Direction connected = ChestBlock.getConnectedDirection(state);
+            x += connected.getStepX() * 0.5;
+            z += connected.getStepZ() * 0.5;
+        }
+
+        level.playSound(
+            null,
+            x,
+            y,
+            z,
+            sound,
+            SoundSource.BLOCKS,
+            0.5F,
+            level.random.nextFloat() * 0.1F + 0.9F
+        );
+    }
+
     @Override
     public void startOpen(Player player) {
         if (!this.remove && !player.isSpectator() && this.getLevel() != null) {

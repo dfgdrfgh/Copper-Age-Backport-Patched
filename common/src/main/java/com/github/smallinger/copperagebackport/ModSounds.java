@@ -47,6 +47,10 @@ public class ModSounds {
     // Copper Chest sounds
     public static Supplier<SoundEvent> COPPER_CHEST_CLOSE;
     public static Supplier<SoundEvent> COPPER_CHEST_OPEN;
+    public static Supplier<SoundEvent> COPPER_CHEST_WEATHERED_CLOSE;
+    public static Supplier<SoundEvent> COPPER_CHEST_WEATHERED_OPEN;
+    public static Supplier<SoundEvent> COPPER_CHEST_OXIDIZED_CLOSE;
+    public static Supplier<SoundEvent> COPPER_CHEST_OXIDIZED_OPEN;
     
     // Copper Statue sounds
     public static Supplier<SoundEvent> COPPER_STATUE_BREAK;
@@ -111,6 +115,10 @@ public class ModSounds {
         // Register Copper Chest sounds
         COPPER_CHEST_CLOSE = registerSound(helper, "block.copper_chest.close");
         COPPER_CHEST_OPEN = registerSound(helper, "block.copper_chest.open");
+        COPPER_CHEST_WEATHERED_CLOSE = registerSound(helper, "block.copper_chest_weathered.close");
+        COPPER_CHEST_WEATHERED_OPEN = registerSound(helper, "block.copper_chest_weathered.open");
+        COPPER_CHEST_OXIDIZED_CLOSE = registerSound(helper, "block.copper_chest_oxidized.close");
+        COPPER_CHEST_OXIDIZED_OPEN = registerSound(helper, "block.copper_chest_oxidized.open");
         
         // Register Copper Statue sounds
         COPPER_STATUE_BREAK = registerSound(helper, "block.copper_statue.break");
