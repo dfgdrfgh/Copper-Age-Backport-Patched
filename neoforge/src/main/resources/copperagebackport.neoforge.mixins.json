@@ -12,7 +12,8 @@
     "MobEquipmentMixin",
     "PlayerDataRemapMixin",
     "LootPoolAccessor",
-    "ComparatorBlockMixin"
+    "ComparatorBlockMixin",
+    "PoiTypesAccessor"
   ],
   "client": [
     "client.ClientLevelMixin",
