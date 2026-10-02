@@ -9,6 +9,7 @@
     "CarvedPumpkinBlockMixin",
     "LightningRodBlockMixin",
     "OfferFlowerGoalMixin",
+    "MobEquipmentMixin",
     "PlayerDataRemapMixin",
     "ComparatorBlockMixin"
   ],
