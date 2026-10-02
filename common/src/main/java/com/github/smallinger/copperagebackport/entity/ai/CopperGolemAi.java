@@ -64,8 +64,7 @@ public class CopperGolemAi {
         ModMemoryTypes.GAZE_COOLDOWN_TICKS.get(),
         ModMemoryTypes.TRANSPORT_ITEMS_COOLDOWN_TICKS.get(),
         ModMemoryTypes.VISITED_BLOCK_POSITIONS.get(),
-        ModMemoryTypes.UNREACHABLE_TRANSPORT_BLOCK_POSITIONS.get(),
-        // MemoryModuleType.DOORS_TO_CLOSE - requires InteractWithDoor from 1.21.10+
+        ModMemoryTypes.UNREACHABLE_TRANSPORT_BLOCK_POSITIONS.get()
     );
     
     /**
