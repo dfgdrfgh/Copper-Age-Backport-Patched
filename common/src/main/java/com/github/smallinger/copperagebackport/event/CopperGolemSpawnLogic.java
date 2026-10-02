@@ -50,22 +50,11 @@ public final class CopperGolemSpawnLogic {
     }
 
     private static void trySpawnCopperGolem(ServerLevel level, BlockPos pumpkinPos, BlockState pumpkinState, Direction chestFacing) {
-        BlockPos copperPos = null;
-        BlockState copperState = null;
-
-        // Vanilla searches the two-block pattern in every orientation, so the
-        // copper block may be below, above, or on any horizontal side.
-        for (Direction bodyDirection : Direction.values()) {
-            BlockPos candidatePos = pumpkinPos.relative(bodyDirection);
-            BlockState candidateState = level.getBlockState(candidatePos);
-            if (candidateState.is(ModTags.Blocks.COPPER)) {
-                copperPos = candidatePos;
-                copperState = candidateState;
-                break;
-            }
-        }
-
-        if (copperPos == null || copperState == null) {
+        // Finalized vanilla Copper Golem pattern is vertical:
+        // carved pumpkin / jack o'lantern directly on top of a copper block.
+        BlockPos copperPos = pumpkinPos.below();
+        BlockState copperState = level.getBlockState(copperPos);
+        if (!copperState.is(ModTags.Blocks.COPPER)) {
             return;
         }
 
