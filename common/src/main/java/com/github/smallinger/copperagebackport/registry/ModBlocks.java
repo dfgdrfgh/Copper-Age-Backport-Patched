@@ -194,7 +194,8 @@ public class ModBlocks {
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
                     .randomTicks()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         EXPOSED_COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "exposed_copper_golem_statue",
             () -> new WeatheringCopperGolemStatueBlock(
@@ -204,7 +205,8 @@ public class ModBlocks {
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
                     .randomTicks()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         WEATHERED_COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "weathered_copper_golem_statue",
             () -> new WeatheringCopperGolemStatueBlock(
@@ -214,7 +216,8 @@ public class ModBlocks {
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
                     .randomTicks()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         OXIDIZED_COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "oxidized_copper_golem_statue",
             () -> new WeatheringCopperGolemStatueBlock(
@@ -224,7 +227,8 @@ public class ModBlocks {
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
                     .randomTicks()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         // Register Waxed Copper Golem Statue Blocks
         WAXED_COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "waxed_copper_golem_statue",
@@ -234,7 +238,8 @@ public class ModBlocks {
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         WAXED_EXPOSED_COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "waxed_exposed_copper_golem_statue",
             () -> new WaxedCopperGolemStatueBlock(
@@ -243,7 +248,8 @@ public class ModBlocks {
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         WAXED_WEATHERED_COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "waxed_weathered_copper_golem_statue",
             () -> new WaxedCopperGolemStatueBlock(
@@ -252,7 +258,8 @@ public class ModBlocks {
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         WAXED_OXIDIZED_COPPER_GOLEM_STATUE = helper.registerAuto(BLOCK, "waxed_oxidized_copper_golem_statue",
             () -> new WaxedCopperGolemStatueBlock(
@@ -261,7 +268,8 @@ public class ModBlocks {
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .requiresCorrectToolForDrops()
-                    .noOcclusion()));
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
         
         // Register Shelf Blocks
         OAK_SHELF = helper.registerAuto(BLOCK, "oak_shelf", () -> new ShelfBlock(shelfProperties()));

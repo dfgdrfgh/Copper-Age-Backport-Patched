@@ -151,14 +151,14 @@ public class CopperGolemStatueBlock extends BaseEntityBlock implements SimpleWat
 
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        // Returns 1-4 based on pose (STANDING=1, RUNNING=2, SITTING=3, STAR=4)
+        // Vanilla pose outputs: standing=1, sitting=2, running=3, star=4.
         return state.getValue(POSE).ordinal() + 1;
     }
 
     public enum Pose implements StringRepresentable {
         STANDING("standing"),
-        RUNNING("running"),
         SITTING("sitting"),
+        RUNNING("running"),
         STAR("star");
 
         private final String name;
