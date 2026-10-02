@@ -11,7 +11,8 @@
     "OfferFlowerGoalMixin",
     "MobEquipmentMixin",
     "PlayerDataRemapMixin",
-    "ComparatorBlockMixin"
+    "ComparatorBlockMixin",
+    "PoiTypesAccessor"
   ],
   "client": [
     "client.ClientLevelMixin",
