@@ -77,38 +77,54 @@ public class WeatheringCopperChestBlock extends CopperChestBlock implements Weat
         BlockHitResult hitResult
     ) {
         if (stack.is(Items.HONEYCOMB)) {
-            Block waxedBlock = getWaxedBlock(state.getBlock()).orElse(null);
+            Block waxedBlock = null;
+            if (this == ModBlocks.COPPER_CHEST.get()) {
+                waxedBlock = ModBlocks.WAXED_COPPER_CHEST.get();
+            } else if (this == ModBlocks.EXPOSED_COPPER_CHEST.get()) {
+                waxedBlock = ModBlocks.WAXED_EXPOSED_COPPER_CHEST.get();
+            } else if (this == ModBlocks.WEATHERED_COPPER_CHEST.get()) {
+                waxedBlock = ModBlocks.WAXED_WEATHERED_COPPER_CHEST.get();
+            } else if (this == ModBlocks.OXIDIZED_COPPER_CHEST.get()) {
+                waxedBlock = ModBlocks.WAXED_OXIDIZED_COPPER_CHEST.get();
+            }
+
             if (waxedBlock != null) {
-                CopperInteractionHelper.wax(
-                    level,
-                    pos,
-                    waxedBlock.withPropertiesOf(state),
-                    player,
-                    stack,
-                    getConnectedEffectPos(state, pos)
-                );
+                BlockState newState = waxedBlock.withPropertiesOf(state);
+                if (!level.isClientSide) {
+                    level.setBlock(pos, newState, 11);
+                    level.gameEvent(
+                        net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE,
+                        pos,
+                        net.minecraft.world.level.gameevent.GameEvent.Context.of(player, newState)
+                    );
+                    stack.shrink(1);
+                }
+
+                level.levelEvent(player, 3003, pos, 0);
+                mirrorDoubleChestEffect(level, player, state, pos, 3003);
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
 
         if (stack.is(ItemTags.AXES)) {
-            if (CopperInteractionHelper.shouldCancelAxeUse(player, hand)) {
-                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            }
-
             Optional<Block> previousBlock = getPreviousBlock(state.getBlock());
             if (previousBlock.isPresent()) {
-                CopperInteractionHelper.axeTransform(
-                    level,
-                    pos,
-                    previousBlock.get().withPropertiesOf(state),
-                    player,
-                    hand,
-                    stack,
-                    SoundEvents.AXE_SCRAPE,
-                    3005,
-                    getConnectedEffectPos(state, pos)
-                );
+                BlockState newState = previousBlock.get().withPropertiesOf(state);
+
+                level.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.levelEvent(player, 3005, pos, 0);
+                mirrorDoubleChestEffect(level, player, state, pos, 3005);
+
+                if (!level.isClientSide) {
+                    level.setBlock(pos, newState, 11);
+                    level.gameEvent(
+                        net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE,
+                        pos,
+                        net.minecraft.world.level.gameevent.GameEvent.Context.of(player, newState)
+                    );
+                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+                }
+
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         }
@@ -116,23 +132,28 @@ public class WeatheringCopperChestBlock extends CopperChestBlock implements Weat
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
-    private static Optional<Block> getWaxedBlock(Block block) {
-        if (block == ModBlocks.COPPER_CHEST.get()) {
-            return Optional.of(ModBlocks.WAXED_COPPER_CHEST.get());
-        } else if (block == ModBlocks.EXPOSED_COPPER_CHEST.get()) {
-            return Optional.of(ModBlocks.WAXED_EXPOSED_COPPER_CHEST.get());
-        } else if (block == ModBlocks.WEATHERED_COPPER_CHEST.get()) {
-            return Optional.of(ModBlocks.WAXED_WEATHERED_COPPER_CHEST.get());
-        } else if (block == ModBlocks.OXIDIZED_COPPER_CHEST.get()) {
-            return Optional.of(ModBlocks.WAXED_OXIDIZED_COPPER_CHEST.get());
+    private static void mirrorDoubleChestEffect(
+        Level level,
+        Player player,
+        BlockState state,
+        BlockPos pos,
+        int eventId
+    ) {
+        if (state.getValue(TYPE) == ChestType.SINGLE) {
+            return;
         }
-        return Optional.empty();
-    }
 
-    private static BlockPos getConnectedEffectPos(BlockState state, BlockPos pos) {
-        return state.getValue(TYPE) == ChestType.SINGLE
-            ? null
-            : pos.relative(ChestBlock.getConnectedDirection(state));
+        BlockPos connectedPos = pos.relative(ChestBlock.getConnectedDirection(state));
+        BlockState connectedState = level.getBlockState(connectedPos);
+        level.levelEvent(player, eventId, connectedPos, 0);
+
+        if (!level.isClientSide) {
+            level.gameEvent(
+                net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE,
+                connectedPos,
+                net.minecraft.world.level.gameevent.GameEvent.Context.of(player, connectedState)
+            );
+        }
     }
 
     @Override
