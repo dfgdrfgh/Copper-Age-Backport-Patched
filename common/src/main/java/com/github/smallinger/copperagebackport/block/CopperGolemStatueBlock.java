@@ -7,6 +7,7 @@ import com.github.smallinger.copperagebackport.ModTags;
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -17,10 +18,12 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -48,7 +51,7 @@ import java.util.Optional;
 
 public class CopperGolemStatueBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<Pose> POSE = EnumProperty.create("pose", Pose.class);
+    public static final EnumProperty<Pose> POSE = EnumProperty.create("copper_golem_pose", Pose.class);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape SHAPE = Block.box(3.0, 0.0, 3.0, 13.0, 14.0, 13.0);
     
@@ -125,6 +128,16 @@ public class CopperGolemStatueBlock extends BaseEntityBlock implements SimpleWat
         }
         
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state);
+        if (level.getBlockEntity(pos) instanceof CopperGolemStatueBlockEntity statueEntity) {
+            statueEntity.saveToItem(stack, level.registryAccess());
+        }
+        stack.set(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(POSE, state));
+        return stack;
     }
 
     @Override
