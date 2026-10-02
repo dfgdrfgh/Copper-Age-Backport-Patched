@@ -30,8 +30,8 @@ public final class CommonConfig {
     // Default values
     private static final boolean DEFAULT_GOLEM_BUILD_SPAWNING = true;
     private static final int DEFAULT_GOLEM_TRANSPORT_STACK_SIZE = 16;
-    private static final int DEFAULT_WEATHERING_TICK_FROM = 504000; // ~7 minecraft days
-    private static final int DEFAULT_WEATHERING_TICK_TO = 552000;   // ~7.7 minecraft days
+    private static final int DEFAULT_WEATHERING_TICK_FROM = 504000; // 7 real-time hours / 21 in-game days
+    private static final int DEFAULT_WEATHERING_TICK_TO = 552000;   // 7h40m real time / 23 in-game days
     private static final boolean DEFAULT_END_FLASH_ENABLED = true;
     
     // Runtime values
@@ -82,10 +82,10 @@ public final class CommonConfig {
 
     /**
      * Minimum time in ticks until the Copper Golem starts weathering to the next oxidation level.
-     * Default: 504000 (~7 minecraft days)
-     * 
-     * Note: This setting only affects newly spawned Copper Golems.
-     * Existing golems keep their already calculated oxidation time.
+     * Default: 504000 (7 real-time hours / 21 in-game days).
+     *
+     * Lowering the configured range also shortens an existing unwaxed golem's
+     * outstanding timer on its next server tick.
      */
     public static int weatheringTickFrom() {
         return weatheringTickFrom;
@@ -97,10 +97,10 @@ public final class CommonConfig {
 
     /**
      * Maximum time in ticks until the Copper Golem weathers to the next oxidation level.
-     * Default: 552000 (~7.7 minecraft days)
-     * 
-     * Note: This setting only affects newly spawned Copper Golems.
-     * Existing golems keep their already calculated oxidation time.
+     * Default: 552000 (7h40m real time / 23 in-game days).
+     *
+     * Lowering the configured range also shortens an existing unwaxed golem's
+     * outstanding timer on its next server tick.
      */
     public static int weatheringTickTo() {
         return weatheringTickTo;
