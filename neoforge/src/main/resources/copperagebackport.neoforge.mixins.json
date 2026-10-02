@@ -6,6 +6,7 @@
   "mixins": [
     "EntityRemapMixin",
     "IdRemapMixin",
+    "CarvedPumpkinBlockMixin",
     "LightningRodBlockMixin",
     "OfferFlowerGoalMixin",
     "PlayerDataRemapMixin"

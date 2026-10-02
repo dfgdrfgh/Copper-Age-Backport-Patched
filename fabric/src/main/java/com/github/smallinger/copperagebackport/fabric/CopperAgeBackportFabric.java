@@ -68,7 +68,7 @@ public class CopperAgeBackportFabric implements ModInitializer {
             }
 
             ItemStack stack = player.getItemInHand(hand);
-            if (!stack.is(Items.CARVED_PUMPKIN)) {
+            if (!stack.is(Items.CARVED_PUMPKIN) && !stack.is(Items.JACK_O_LANTERN)) {
                 return InteractionResult.PASS;
             }
 
@@ -86,7 +86,7 @@ public class CopperAgeBackportFabric implements ModInitializer {
                 }
 
                 BlockState placedState = serverLevel.getBlockState(placePos);
-                if (!placedState.is(Blocks.CARVED_PUMPKIN)) {
+                if (!placedState.is(Blocks.CARVED_PUMPKIN) && !placedState.is(Blocks.JACK_O_LANTERN)) {
                     return;
                 }
 
@@ -99,7 +99,7 @@ public class CopperAgeBackportFabric implements ModInitializer {
 
     private void registerCreativeTabs() {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries ->
-            entries.accept(ModItems.COPPER_GOLEM_SPAWN_EGG.get())
+            entries.addAfter(Items.COD_SPAWN_EGG, ModItems.COPPER_GOLEM_SPAWN_EGG.get())
         );
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(entries -> {
@@ -128,11 +128,6 @@ public class CopperAgeBackportFabric implements ModInitializer {
             }
         });
 
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(entries -> {
-            // Copper Buttons after stone button
-            entries.addAfter(Items.STONE_BUTTON, ModItems.COPPER_BUTTON_ITEM.get(), ModItems.EXPOSED_COPPER_BUTTON_ITEM.get(), ModItems.WEATHERED_COPPER_BUTTON_ITEM.get(), ModItems.OXIDIZED_COPPER_BUTTON_ITEM.get(), ModItems.WAXED_COPPER_BUTTON_ITEM.get(), ModItems.WAXED_EXPOSED_COPPER_BUTTON_ITEM.get(), ModItems.WAXED_WEATHERED_COPPER_BUTTON_ITEM.get(), ModItems.WAXED_OXIDIZED_COPPER_BUTTON_ITEM.get());
-        });
-        
         // Add copper tools after stone tools
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
             entries.addAfter(Items.STONE_HOE, ModItems.COPPER_SHOVEL.get(), ModItems.COPPER_PICKAXE.get(), ModItems.COPPER_AXE.get(), ModItems.COPPER_HOE.get());
@@ -141,6 +136,7 @@ public class CopperAgeBackportFabric implements ModInitializer {
         // Add copper sword after stone sword, copper armor after chainmail armor
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register(entries -> {
             entries.addAfter(Items.STONE_SWORD, ModItems.COPPER_SWORD.get());
+            entries.addAfter(Items.STONE_AXE, ModItems.COPPER_AXE.get());
             entries.addAfter(Items.CHAINMAIL_BOOTS, ModItems.COPPER_HELMET.get(), ModItems.COPPER_CHESTPLATE.get(), ModItems.COPPER_LEGGINGS.get(), ModItems.COPPER_BOOTS.get());
             // Add copper horse armor after leather horse armor (before iron horse armor)
             entries.addAfter(Items.LEATHER_HORSE_ARMOR, ModItems.COPPER_HORSE_ARMOR.get());

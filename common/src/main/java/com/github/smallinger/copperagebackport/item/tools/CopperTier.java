@@ -1,7 +1,7 @@
 package com.github.smallinger.copperagebackport.item.tools;
 
+import com.github.smallinger.copperagebackport.ModTags;
 import com.google.common.base.Suppliers;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * - Repair: Copper Ingot
  */
 public enum CopperTier implements Tier {
-    INSTANCE(BlockTags.INCORRECT_FOR_STONE_TOOL, 190, 5.0F, 1.0F, 13, () -> Ingredient.of(Items.COPPER_INGOT));
+    INSTANCE(ModTags.Blocks.INCORRECT_FOR_COPPER_TOOL, 190, 5.0F, 1.0F, 13, () -> Ingredient.of(Items.COPPER_INGOT));
 
     private final TagKey<Block> incorrectBlocksForDrops;
     private final int uses;
