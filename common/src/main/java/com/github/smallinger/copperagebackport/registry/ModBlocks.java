@@ -123,6 +123,7 @@ public class ModBlocks {
             () -> new WeatheringCopperChestBlock(
                 WeatheringCopper.WeatherState.UNAFFECTED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(Blocks.COPPER_BLOCK.defaultMapColor())
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()
@@ -132,6 +133,7 @@ public class ModBlocks {
             () -> new WeatheringCopperChestBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_LIGHT_GRAY)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()
@@ -141,6 +143,7 @@ public class ModBlocks {
             () -> new WeatheringCopperChestBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_STEM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()
@@ -150,6 +153,7 @@ public class ModBlocks {
             () -> new WeatheringCopperChestBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_NYLIUM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()
@@ -160,6 +164,7 @@ public class ModBlocks {
             () -> new CopperChestBlock(
                 WeatheringCopper.WeatherState.UNAFFECTED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(Blocks.COPPER_BLOCK.defaultMapColor())
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()));
@@ -168,6 +173,7 @@ public class ModBlocks {
             () -> new CopperChestBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_LIGHT_GRAY)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()));
@@ -176,6 +182,7 @@ public class ModBlocks {
             () -> new CopperChestBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_STEM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()));
@@ -184,6 +191,7 @@ public class ModBlocks {
             () -> new CopperChestBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_NYLIUM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .requiresCorrectToolForDrops()));
@@ -193,6 +201,7 @@ public class ModBlocks {
             () -> new WeatheringCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.UNAFFECTED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(Blocks.COPPER_BLOCK.defaultMapColor())
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .randomTicks()
@@ -203,6 +212,7 @@ public class ModBlocks {
             () -> new WeatheringCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_LIGHT_GRAY)
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .randomTicks()
@@ -213,6 +223,7 @@ public class ModBlocks {
             () -> new WeatheringCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_STEM)
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .randomTicks()
@@ -223,6 +234,7 @@ public class ModBlocks {
             () -> new WeatheringCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_NYLIUM)
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .randomTicks()
@@ -234,6 +246,7 @@ public class ModBlocks {
             () -> new WaxedCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.UNAFFECTED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(Blocks.COPPER_BLOCK.defaultMapColor())
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .noOcclusion()
@@ -243,6 +256,7 @@ public class ModBlocks {
             () -> new WaxedCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_LIGHT_GRAY)
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .noOcclusion()
@@ -252,6 +266,7 @@ public class ModBlocks {
             () -> new WaxedCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_STEM)
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .noOcclusion()
@@ -261,6 +276,7 @@ public class ModBlocks {
             () -> new WaxedCopperGolemStatueBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_NYLIUM)
                     .strength(3.0F, 6.0F)
                     .sound(ModSoundTypes.COPPER_STATUE)
                     .noOcclusion()
@@ -305,6 +321,7 @@ public class ModBlocks {
             () -> new WeatheringCopperLanternBlock(
                 WeatheringCopper.WeatherState.UNAFFECTED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -317,6 +334,7 @@ public class ModBlocks {
             () -> new WeatheringCopperLanternBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -329,6 +347,7 @@ public class ModBlocks {
             () -> new WeatheringCopperLanternBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -341,6 +360,7 @@ public class ModBlocks {
             () -> new WeatheringCopperLanternBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -353,6 +373,7 @@ public class ModBlocks {
             () -> new CopperLanternBlock(
                 WeatheringCopper.WeatherState.UNAFFECTED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -364,6 +385,7 @@ public class ModBlocks {
             () -> new CopperLanternBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -375,6 +397,7 @@ public class ModBlocks {
             () -> new CopperLanternBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -386,6 +409,7 @@ public class ModBlocks {
             () -> new CopperLanternBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .sound(SoundType.LANTERN)
                     .lightLevel(state -> 15)
@@ -562,6 +586,7 @@ public class ModBlocks {
             () -> new WeatheringCopperLightningRodBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_LIGHT_GRAY)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
@@ -573,6 +598,7 @@ public class ModBlocks {
             () -> new WeatheringCopperLightningRodBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_STEM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
@@ -584,6 +610,7 @@ public class ModBlocks {
             () -> new WeatheringCopperLightningRodBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_NYLIUM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
@@ -595,6 +622,7 @@ public class ModBlocks {
             () -> new WaxedCopperLightningRodBlock(
                 WeatheringCopper.WeatherState.UNAFFECTED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(Blocks.LIGHTNING_ROD.defaultMapColor())
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
@@ -605,6 +633,7 @@ public class ModBlocks {
             () -> new WaxedCopperLightningRodBlock(
                 WeatheringCopper.WeatherState.EXPOSED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_LIGHT_GRAY)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
@@ -615,6 +644,7 @@ public class ModBlocks {
             () -> new WaxedCopperLightningRodBlock(
                 WeatheringCopper.WeatherState.WEATHERED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_STEM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
@@ -625,6 +655,7 @@ public class ModBlocks {
             () -> new WaxedCopperLightningRodBlock(
                 WeatheringCopper.WeatherState.OXIDIZED,
                 BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WARPED_NYLIUM)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
                     .noOcclusion()
