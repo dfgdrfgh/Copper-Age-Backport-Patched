@@ -1,7 +1,5 @@
 package com.github.smallinger.copperagebackport.entity.ai;
 
-import com.github.smallinger.copperagebackport.Constants;
-import com.github.smallinger.copperagebackport.compat.ModCompat;
 import com.github.smallinger.copperagebackport.ModMemoryTypes;
 import com.github.smallinger.copperagebackport.ModSounds;
 import com.github.smallinger.copperagebackport.ModTags;
@@ -28,7 +26,6 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -92,7 +89,7 @@ public class CopperGolemAi {
     
     /**
      * Core Activity - Grundlegende Behaviors die immer aktiv sind
-     * WICHTIG: Kein Swim Behavior! Copper Golems ertrinken im Wasser (wie im Original)
+     * Kein Swim-Task: underwater breathing is handled by the finalized entity-type tag.
      */
     private static void initCoreActivity(Brain<CopperGolemEntity> brain) {
         brain.addActivity(
@@ -112,9 +109,8 @@ public class CopperGolemAi {
     /**
      * Idle Activity - Behaviors wenn Golem nichts Spezielles tut
      * Priority 0: Item Transport (höchste Priorität)
-     * Priority 1: Press Random Copper Button (wenn Config aktiviert)
-     * Priority 2: Schaue manchmal Spieler an
-     * Priority 3: Herumlaufen oder Stillstehen (wenn Cooldown aktiv)
+     * Priority 1: Schaue manchmal Spieler an
+     * Priority 2: Herumlaufen oder Stillstehen (wenn Cooldown aktiv)
      */
     private static void initIdleActivity(Brain<CopperGolemEntity> brain) {
         ImmutableList.Builder<Pair<Integer, ? extends BehaviorControl<? super CopperGolemEntity>>> behaviorsBuilder = ImmutableList.builder();
@@ -123,7 +119,7 @@ public class CopperGolemAi {
         behaviorsBuilder.add(Pair.of(0, new TransportItemsBetweenContainers(
             1.0F,  // Speed Modifier
             state -> state.is(ModTags.Blocks.COPPER_CHESTS),  // Source: Nur Copper Chests (fest)
-            state -> isValidDestinationContainer(state),  // Target: Vanilla Chests und Barrels
+            state -> isValidDestinationContainer(state),  // Target: Chest / Trapped Chest
             32,  // Horizontal Search Distance
             8,   // Vertical Search Distance
             getTargetReachedInteractions(),  // Interaction callbacks
@@ -202,67 +198,115 @@ public class CopperGolemAi {
      * Spielt den Chest Open/Close Sound ab und triggert die Animation
      * Unterstützt: Copper Chests, Barrels, Regular Chests, und mod-kompatible Container
      */
+    /**
+     * Emulates modern Inventory#onOpen/onClose for 1.21.1, whose chest API only
+     * accepts Player viewers. This preserves double-chest animation, existing
+     * player opener counts, and oxidation-specific Copper Chest sounds.
+     */
     private static void playChestSound(CopperGolemEntity golem, BlockPos pos, boolean open) {
         Level level = golem.level();
-        BlockState blockState = level.getBlockState(pos);
-        
-        // Try ModCompat first (SophisticatedStorage, etc.)
-        if (ModCompat.handleChestOpen(level, pos, blockState, open)) {
-            // ModCompat handled the sound and animation
-            level.gameEvent(golem, 
-                open ? net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN : net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE, 
-                pos);
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof ChestBlock)) {
             return;
         }
-        
-        // Spiele den entsprechenden Sound (Copper Chest, Barrel oder Regular Chest)
-        net.minecraft.sounds.SoundEvent soundEvent;
-        if (blockState.is(ModTags.Blocks.COPPER_CHESTS)) {
-            // Copper Chest Sound
-            soundEvent = open ? ModSounds.COPPER_CHEST_OPEN.get() : ModSounds.COPPER_CHEST_CLOSE.get();
-        } else if (blockState.getBlock() instanceof BarrelBlock) {
-            // Barrel Sound (vanilla + mods extending BarrelBlock)
-            soundEvent = open ? SoundEvents.BARREL_OPEN : SoundEvents.BARREL_CLOSE;
-        } else {
-            // Regular Chest Sound (default for ChestBlock and other containers)
-            soundEvent = open ? SoundEvents.CHEST_OPEN : SoundEvents.CHEST_CLOSE;
+
+        net.minecraft.world.level.block.state.properties.ChestType type =
+            state.getValue(ChestBlock.TYPE);
+        BlockPos connectedPos = type == net.minecraft.world.level.block.state.properties.ChestType.SINGLE
+            ? null
+            : pos.relative(ChestBlock.getConnectedDirection(state));
+
+        // Modern double-container open/close reaches both halves.
+        updateChestHalf(level, golem, pos, open);
+        if (connectedPos != null) {
+            updateChestHalf(level, golem, connectedPos, open);
         }
-        
-        level.playSound(null, pos, soundEvent, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
-        
-        // Trigger container animation safely (wrapped in try-catch for mod compatibility)
-        // Some mods extend ChestBlock/BarrelBlock but override properties or behavior
-        try {
-            net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity != null) {
-                // Try BarrelBlock animation via OPEN property
-                if (blockState.getBlock() instanceof BarrelBlock) {
-                    // Check if the block has the OPEN property before setting it
-                    if (blockState.hasProperty(net.minecraft.world.level.block.BarrelBlock.OPEN)) {
-                        level.setBlock(pos, blockState.setValue(net.minecraft.world.level.block.BarrelBlock.OPEN, open), 3);
-                    }
-                }
-                // Try ChestBlock animation via blockEvent
-                else if (blockState.getBlock() instanceof ChestBlock) {
-                    level.blockEvent(pos, blockState.getBlock(), 1, open ? 1 : 0);
-                }
-                // Fallback for other containers: try blockEvent (safe, won't crash if not implemented)
-                else {
-                    level.blockEvent(pos, blockState.getBlock(), 1, open ? 1 : 0);
-                }
+
+        // Vanilla chest sounds are emitted only by the non-LEFT half.
+        BlockPos soundPos = pos;
+        BlockState soundState = state;
+        if (type == net.minecraft.world.level.block.state.properties.ChestType.LEFT && connectedPos != null) {
+            soundPos = connectedPos;
+            soundState = level.getBlockState(soundPos);
+        }
+
+        if (getPlayerOpenerCount(level, soundPos) == 0) {
+            net.minecraft.sounds.SoundEvent soundEvent;
+            if (soundState.getBlock() instanceof com.github.smallinger.copperagebackport.block.CopperChestBlock copperChest) {
+                soundEvent = open ? copperChest.getOpenSound() : copperChest.getCloseSound();
+            } else {
+                soundEvent = open ? SoundEvents.CHEST_OPEN : SoundEvents.CHEST_CLOSE;
             }
-        } catch (Exception e) {
-            // Silently ignore animation errors - the item transfer still works
-            // This can happen with modded containers that have non-standard implementations
-            Constants.LOG.debug("Failed to animate container at {}: {}", pos, e.getMessage());
+            playVanillaChestSound(level, soundPos, soundState, soundEvent);
         }
-        
-        // GameEvent für andere Systeme
-        level.gameEvent(golem, 
-            open ? net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN : net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE, 
-            pos);
     }
-    
+
+    private static void updateChestHalf(Level level, CopperGolemEntity golem, BlockPos pos, boolean open) {
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof ChestBlock)) {
+            return;
+        }
+
+        int playerOpeners = getPlayerOpenerCount(level, pos);
+        int displayedOpeners = open ? playerOpeners + 1 : playerOpeners;
+        level.blockEvent(pos, state.getBlock(), 1, displayedOpeners);
+
+        // ContainerOpenersCounter emits these only on the 0<->1 transition.
+        if (playerOpeners == 0) {
+            level.gameEvent(
+                golem,
+                open
+                    ? net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN
+                    : net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE,
+                pos
+            );
+        }
+    }
+
+    private static int getPlayerOpenerCount(Level level, BlockPos pos) {
+        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof CopperChestBlockEntity copperChest) {
+            return copperChest.getPlayerOpenerCount();
+        }
+        if (blockEntity instanceof ChestBlockEntity) {
+            return ChestBlockEntity.getOpenCount(level, pos);
+        }
+        return 0;
+    }
+
+    private static void playVanillaChestSound(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        net.minecraft.sounds.SoundEvent soundEvent
+    ) {
+        net.minecraft.world.level.block.state.properties.ChestType type =
+            state.getValue(ChestBlock.TYPE);
+        if (type == net.minecraft.world.level.block.state.properties.ChestType.LEFT) {
+            return;
+        }
+
+        double x = pos.getX() + 0.5;
+        double y = pos.getY() + 0.5;
+        double z = pos.getZ() + 0.5;
+        if (type == net.minecraft.world.level.block.state.properties.ChestType.RIGHT) {
+            net.minecraft.core.Direction connected = ChestBlock.getConnectedDirection(state);
+            x += connected.getStepX() * 0.5;
+            z += connected.getStepZ() * 0.5;
+        }
+
+        level.playSound(
+            null,
+            x,
+            y,
+            z,
+            soundEvent,
+            SoundSource.BLOCKS,
+            0.5F,
+            level.random.nextFloat() * 0.1F + 0.9F
+        );
+    }
+
     /**
      * Callback wenn Golem zu einem Target läuft
      * Setzt State zurück auf IDLE

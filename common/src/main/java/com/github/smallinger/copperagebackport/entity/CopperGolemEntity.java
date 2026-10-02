@@ -106,8 +106,6 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
         this.setPersistenceRequired();
         // Explicitly set initial state to IDLE (matches vanilla CopperGolem constructor)
         this.setState(CopperGolemState.IDLE);
-        // Benötigt für Türöffnung mit Brain-based AI
-        this.setCanPickUpLoot(true);
         // Pathfinding-Malus: Meidet Feuer-Gefahren
         this.setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.DANGER_FIRE, 16.0F);
         this.setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.DANGER_OTHER, 16.0F);
@@ -148,12 +146,6 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
         navigation.setCanPassDoors(true);  // Kann durch Türen gehen
         navigation.setMaxFollowRange(48.0F);  // Matches finalized Copper Golem navigation range
         return navigation;
-    }
-
-    // Prevent Copper Golem from picking up items from the ground
-    @Override
-    public boolean wantsToPickUp(ItemStack stack) {
-        return false;
     }
 
     @Override

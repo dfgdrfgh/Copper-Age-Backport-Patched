@@ -117,4 +117,8 @@ public class CopperChestBlockEntity extends ChestBlockEntity {
     public boolean isChestOpen() {
         return this.openersCounter.getOpenerCount() > 0;
     }
+
+    public int getPlayerOpenerCount() {
+        return this.openersCounter.getOpenerCount();
+    }
 }
