@@ -1,6 +1,7 @@
 package com.github.smallinger.copperagebackport.registry;
 
 import com.github.smallinger.copperagebackport.Constants;
+import com.github.smallinger.copperagebackport.item.armor.CopperHorseArmorItem;
 import com.github.smallinger.copperagebackport.item.tools.CopperTier;
 import com.github.smallinger.copperagebackport.platform.Services;
 import net.minecraft.world.item.AxeItem;
