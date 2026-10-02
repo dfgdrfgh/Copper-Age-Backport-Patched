@@ -3,6 +3,7 @@ package com.github.smallinger.copperagebackport.neoforge.client;
 import com.github.smallinger.copperagebackport.Constants;
 import com.github.smallinger.copperagebackport.client.gui.ConfigScreen;
 import com.github.smallinger.copperagebackport.registry.ModBlocks;
+import com.github.smallinger.copperagebackport.registry.ModItems;
 import com.github.smallinger.copperagebackport.registry.ModParticles;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -13,6 +14,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
@@ -64,6 +66,17 @@ public class CopperAgeBackportNeoForgeClient {
         });
     }
     
+    @SubscribeEvent
+    public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+        // The modern Copper Golem spawn egg already contains its final colors.
+        // White leaves the source texture unchanged instead of applying the
+        // normal SpawnEggItem tint multiplication.
+        event.register(
+            (stack, tintIndex) -> -1,
+            ModItems.COPPER_GOLEM_SPAWN_EGG.get()
+        );
+    }
+
     @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticles.COPPER_FIRE_FLAME.get(), FlameParticle.Provider::new);
