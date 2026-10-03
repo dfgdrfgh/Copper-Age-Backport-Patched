@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -521,7 +522,7 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
                 0.5 * direction.getStepY(),
                 0.5 * direction.getStepZ()
             );
-            HitResult hitResult = level.clip(new ClipContext(pos, targetVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob));
+            BlockHitResult hitResult = level.clip(new ClipContext(pos, targetVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob));
             if (hitResult.getType() == HitResult.Type.BLOCK && hitResult.getBlockPos().equals(target.pos)) {
                 return true;
             }
