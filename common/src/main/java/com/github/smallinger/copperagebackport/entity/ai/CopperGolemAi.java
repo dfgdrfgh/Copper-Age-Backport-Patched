@@ -43,6 +43,7 @@ import java.util.function.BiPredicate;
  * Basierend auf der Original-Implementation aus Minecraft 1.21.10
  */
 public class CopperGolemAi {
+    private static final ImmutableList<Activity> IDLE_ACTIVITY = ImmutableList.of(Activity.IDLE);
     
     // Sensor Types für Brain-System
     private static final ImmutableList<SensorType<? extends Sensor<? super CopperGolemEntity>>> SENSOR_TYPES = ImmutableList.of(
@@ -369,7 +370,7 @@ public class CopperGolemAi {
      * Update Activity - Wird jeden Tick aufgerufen
      */
     public static void updateActivity(CopperGolemEntity golem) {
-        golem.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
+        golem.getBrain().setActiveActivityToFirstValid(IDLE_ACTIVITY);
     }
 }
 

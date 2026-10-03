@@ -4,7 +4,6 @@ import com.github.smallinger.copperagebackport.ModMemoryTypes;
 import com.github.smallinger.copperagebackport.entity.ai.navigation.CopperGolemNavigation;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -56,6 +55,7 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     private static final double CLOSE_ENOUGH_TO_START_INTERACTING_WITH_TARGET_DISTANCE = 0.5;
     private static final double CLOSE_ENOUGH_TO_START_INTERACTING_WITH_TARGET_PATH_END_DISTANCE = 1.0;
     private static final double CLOSE_ENOUGH_TO_CONTINUE_INTERACTING_WITH_TARGET = 2.0;
+    private static final Direction[] ALL_DIRECTIONS = Direction.values();
     private final float speedModifier;
     private final int horizontalSearchDistance;
     private final int verticalSearchDistance;
@@ -255,8 +255,10 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
         mob.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(target.pos));
         this.stopInPlace(mob);
         if (this.interactionState != null) {
-            Optional.ofNullable(this.onTargetInteractionActions.get(this.interactionState))
-                .ifPresent(action -> action.accept(mob, target, this.ticksSinceReachingTarget));
+            OnTargetReachedInteraction action = this.onTargetInteractionActions.get(this.interactionState);
+            if (action != null) {
+                action.accept(mob, target, this.ticksSinceReachingTarget);
+            }
         }
     }
 
@@ -285,17 +287,18 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
         AABB searchArea = this.getTargetSearchArea(mob);
         Set<GlobalPos> visited = getVisitedPositions(mob);
         Set<GlobalPos> unreachable = getUnreachablePositions(mob);
-        List<ChunkPos> chunks = ChunkPos.rangeClosed(
-            new ChunkPos(mob.blockPosition()),
-            Math.floorDiv(this.getHorizontalSearchDistance(mob), 16) + 1
-        ).toList();
+        int chunkRadius = Math.floorDiv(this.getHorizontalSearchDistance(mob), 16) + 1;
+        Vec3 mobPosition = mob.position();
 
         TransportItemsBetweenContainers.TransportItemTarget nearest = null;
         double nearestDistance = Float.MAX_VALUE;
 
         // Match finalized vanilla: iterate loaded chunks, then each chunk's natural
-        // block-entity map order, considering only chest block entities.
-        for (ChunkPos chunkPos : chunks) {
+        // block-entity map order, considering only chest block entities. Iterate the
+        // range stream directly to avoid allocating a temporary chunk list.
+        var chunks = ChunkPos.rangeClosed(new ChunkPos(mob.blockPosition()), chunkRadius).iterator();
+        while (chunks.hasNext()) {
+            ChunkPos chunkPos = chunks.next();
             LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
             if (chunk == null) {
                 continue;
@@ -306,7 +309,7 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
                     continue;
                 }
 
-                double distance = blockEntity.getBlockPos().distToCenterSqr(mob.position());
+                double distance = blockEntity.getBlockPos().distToCenterSqr(mobPosition);
                 if (distance >= nearestDistance) {
                     continue;
                 }
@@ -371,7 +374,10 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     }
 
     private boolean hasValidTravellingPath(Level level, TransportItemsBetweenContainers.TransportItemTarget target, PathfinderMob mob) {
-        Path path = mob.getNavigation().getPath() == null ? mob.getNavigation().createPath(target.pos, 0) : mob.getNavigation().getPath();
+        Path path = mob.getNavigation().getPath();
+        if (path == null) {
+            path = mob.getNavigation().createPath(target.pos, 0);
+        }
         Vec3 vec3 = this.getPositionToReachTargetFrom(path, mob);
         boolean flag = this.isWithinTargetDistance(getInteractionRange(mob), target, level, mob, vec3);
         boolean flag1 = path == null && !flag;
@@ -472,10 +478,11 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     }
 
     protected void markVisitedBlockPosAsUnreachable(PathfinderMob mob, Level level, BlockPos pos) {
+        GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);
         Set<GlobalPos> set = new HashSet<>(getVisitedPositions(mob));
-        set.remove(GlobalPos.of(level.dimension(), pos));
+        set.remove(globalPos);
         Set<GlobalPos> set1 = new HashSet<>(getUnreachablePositions(mob));
-        set1.add(GlobalPos.of(level.dimension(), pos));
+        set1.add(globalPos);
         if (set1.size() > 50) {
             this.enterCooldownAfterNoMatchingTargetFound(mob);
         } else {
@@ -507,11 +514,19 @@ public class TransportItemsBetweenContainers extends Behavior<PathfinderMob> {
     }
 
     private boolean canSeeAnyTargetSide(TransportItemsBetweenContainers.TransportItemTarget target, Level level, PathfinderMob mob, Vec3 pos) {
-        Vec3 vec3 = target.pos.getCenter();
-        return Direction.stream()
-            .map(direction -> vec3.add(0.5 * direction.getStepX(), 0.5 * direction.getStepY(), 0.5 * direction.getStepZ()))
-            .map(targetVec -> level.clip(new ClipContext(pos, targetVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob)))
-            .anyMatch(hitResult -> hitResult.getType() == HitResult.Type.BLOCK && hitResult.getBlockPos().equals(target.pos));
+        Vec3 center = target.pos.getCenter();
+        for (Direction direction : ALL_DIRECTIONS) {
+            Vec3 targetVec = center.add(
+                0.5 * direction.getStepX(),
+                0.5 * direction.getStepY(),
+                0.5 * direction.getStepZ()
+            );
+            HitResult hitResult = level.clip(new ClipContext(pos, targetVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob));
+            if (hitResult.getType() == HitResult.Type.BLOCK && hitResult.getBlockPos().equals(target.pos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isAnotherMobInteractingWithTarget(TransportItemsBetweenContainers.TransportItemTarget target, Level level, PathfinderMob mob) {

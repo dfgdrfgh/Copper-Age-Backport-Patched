@@ -54,6 +54,9 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
     private static final int SPIN_ANIMATION_MAX_COOLDOWN = 240;
     private static final float TURN_TO_STATUE_CHANCE = 0.0058F; // 0.58% chance per tick when oxidized
     private static final double CONTAINER_INTERACTION_RANGE = 3.0;
+    private static final CopperGolemState[] COPPER_GOLEM_STATES = CopperGolemState.values();
+    private static final WeatheringCopper.WeatherState[] WEATHER_STATES = WeatheringCopper.WeatherState.values();
+    private static final CopperGolemStatueBlock.Pose[] STATUE_POSES = CopperGolemStatueBlock.Pose.values();
     // In vanilla 1.21.10, this is EquipmentSlot.SADDLE - a new slot added specifically for Copper Golem's antenna.
     // Since SADDLE doesn't exist in 1.21.1 (or 1.20.1), we use HEAD as a fallback slot for the antenna item.
     public static final EquipmentSlot EQUIPMENT_SLOT_ANTENNA = EquipmentSlot.HEAD;
@@ -157,8 +160,9 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
 
     public CopperGolemState getState() {
         int stateId = this.entityData.get(COPPER_GOLEM_STATE);
-        CopperGolemState[] states = CopperGolemState.values();
-        return stateId >= 0 && stateId < states.length ? states[stateId] : CopperGolemState.IDLE;
+        return stateId >= 0 && stateId < COPPER_GOLEM_STATES.length
+            ? COPPER_GOLEM_STATES[stateId]
+            : CopperGolemState.IDLE;
     }
 
     public void setState(CopperGolemState state) {
@@ -167,8 +171,9 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
 
     public WeatheringCopper.WeatherState getWeatherState() {
         int weatherId = this.entityData.get(DATA_WEATHER_STATE);
-        WeatheringCopper.WeatherState[] states = WeatheringCopper.WeatherState.values();
-        return weatherId >= 0 && weatherId < states.length ? states[weatherId] : WeatheringCopper.WeatherState.UNAFFECTED;
+        return weatherId >= 0 && weatherId < WEATHER_STATES.length
+            ? WEATHER_STATES[weatherId]
+            : WeatheringCopper.WeatherState.UNAFFECTED;
     }
 
     public void setWeatherState(WeatheringCopper.WeatherState weatherState) {
@@ -240,9 +245,8 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
             : UNSET_WEATHERING_TICK;
         if (compound.contains("weather_state")) {
             int weatherId = compound.getInt("weather_state");
-            WeatheringCopper.WeatherState[] states = WeatheringCopper.WeatherState.values();
-            if (weatherId >= 0 && weatherId < states.length) {
-                this.setWeatherState(states[weatherId]);
+            if (weatherId >= 0 && weatherId < WEATHER_STATES.length) {
+                this.setWeatherState(WEATHER_STATES[weatherId]);
             }
         }
     }
@@ -300,8 +304,8 @@ public class CopperGolemEntity extends AbstractGolem implements Shearable, Conta
     
     private void turnToStatue(ServerLevel level) {
         BlockPos blockPos = this.blockPosition();
-        CopperGolemStatueBlock.Pose randomPose = CopperGolemStatueBlock.Pose.values()[
-            this.random.nextInt(0, CopperGolemStatueBlock.Pose.values().length)
+        CopperGolemStatueBlock.Pose randomPose = STATUE_POSES[
+            this.random.nextInt(0, STATUE_POSES.length)
         ];
         
         level.setBlock(
